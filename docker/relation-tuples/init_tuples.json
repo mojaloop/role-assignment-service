@@ -1,0 +1,51 @@
+[
+  {
+    "$schema": ".relation_tuple.schema.json",
+    "namespace": "videos",
+    "object": "/cats",
+    "relation": "owner",
+    "subject": "cat lady"
+  },
+  {
+    "$schema": "./relation_tuple.schema.json",
+    "namespace": "videos",
+    "object": "/cats/1.mp4",
+    "relation": "owner",
+    "subject": "videos:/cats#owner"
+  },
+  {
+    "$schema": "./relation_tuple.schema.json",
+    "namespace": "videos",
+    "object": "/cats/2.mp4",
+    "relation": "owner",
+    "subject": "videos:/cats#owner"
+  },
+  {
+    "$schema": "./relation-tuples/relation_tuple.schema.json",
+    "namespace": "videos",
+    "object": "/cats",
+    "relation": "view",
+    "subject": "videos:/cats#owner"
+  },
+  {
+    "$schema": "./relation-tuples/relation_tuple.schema.json",
+    "namespace": "videos",
+    "object": "/cats/1.mp4",
+    "relation": "view",
+    "subject": "videos:/cats/1.mp4#owner"
+  },
+  {
+    "$schema": "./relation-tuples/relation_tuple.schema.json",
+    "namespace": "videos",
+    "object": "/cats/1.mp4",
+    "relation": "view",
+    "subject": "*"
+  },
+  {
+    "$schema": "./relation_tuple.schema.json",
+    "namespace": "videos",
+    "object": "/cats/2.mp4",
+    "relation": "view",
+    "subject": "videos:/cats/2.mp4#owner"
+  }
+]

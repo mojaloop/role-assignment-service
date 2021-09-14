@@ -1,0 +1,57 @@
+version: "3.7"
+
+networks:
+  mojaloop-net:
+    name: mojaloop-net
+
+services:
+  #mysql:
+  #  image: mysql:5.7.29
+  #  ports:
+  #    - 3306
+  #  environment:
+  #      MYSQL_ROOT_PASSWORD: root
+  #      MYSQL_USER: wso2carbon
+  #      MYSQL_PASSWORD: wso2carbon
+  #  volumes:
+  #    - ./docker/mysql/scripts:/docker-entrypoint-initdb.d
+  #    - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+  #  healthcheck:
+  #    test: ["CMD", "mysqladmin" ,"ping", "-uroot", "-proot"]
+  #    interval: 30s
+  #    timeout: 60s
+  #    retries: 5
+
+  #identity-server:
+  #  image: wso2/wso2is:5.7.0
+  #  ports:
+  #    - "9763:9763"
+  #    - "9443:9443"
+  #  healthcheck:
+  #    test: ["CMD", "curl", "-k", "-f", "https://localhost:9443/carbon/admin/login.jsp"]
+  #    interval: 5s
+  #    timeout: 120s
+  #    start_period: 100s
+  #  volumes:
+  #    - ./docker/identity-server:/home/wso2carbon/wso2-config-volume
+  #  depends_on:
+  #    mysql:
+  #      condition: service_healthy
+  keto:
+    container_name: keto
+    image: oryd/keto:v0.6.0-alpha.1-sqlite
+    ports:
+      - '4466:4466'
+      - '4467:4467'
+    volumes:
+      - ./docker/keto.yml:/opt/keto/keto.yml
+    command: serve --config /opt/keto/keto.yml
+
+  keto-init:
+    container_name: keto-init
+    image: oryd/keto:v0.6.0-alpha.1-sqlite
+    environment:
+      - KETO_WRITE_REMOTE=keto:4467
+    volumes:
+      - ./docker/relation-tuples:/opt/relation-tuples
+    command: relation-tuple create /opt/relation-tuples/init_tuples.json
