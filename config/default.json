@@ -1,0 +1,34 @@
+{
+  "PORT": 3008,
+  "HOST": "0.0.0.0",
+  "INSPECT": {
+    "DEPTH": 4,
+    "SHOW_HIDDEN": false,
+    "COLOR": true
+  },
+  "ENDPOINT_CACHE_CONFIG": {
+    "expiresIn": 180000,
+    "generateTimeout": 30000
+  },
+  "CENTRAL_SERVICE_ADMIN_URL": "http://central-ledger:3001",
+  "ORY_KETO_SERVICE_URL": "",
+  "ERROR_HANDLING": {
+    "includeCauseExtension": true,
+    "truncateExtensions": true
+  },
+  "INSTRUMENTATION": {
+    "METRICS": {
+      "DISABLED": false,
+      "labels": {
+        "eventId": "*"
+      },
+      "config": {
+        "timeout": 5000,
+        "prefix": "moja_ra_api",
+        "defaultLabels": {
+          "serviceName": "role-assignment-service"
+        }
+      }
+    }
+  }
+}
