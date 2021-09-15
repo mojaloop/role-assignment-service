@@ -49,8 +49,8 @@ async function register (server: Server): Promise<Server> {
     Vision,
     Blip,
     ErrorHandling,
-    Util.Hapi.HapiEventPlugin,
-    Util.Hapi.FSPIOPHeaderValidation
+    Util.Hapi.HapiEventPlugin
+    // Util.Hapi.FSPIOPHeaderValidation
   ]
 
   await server.register(plugins)

@@ -37,6 +37,24 @@ services:
   #  depends_on:
   #    mysql:
   #      condition: service_healthy
+
+  role-assignment-service:
+    container_name: role-assignment-service
+    image: mojaloop/role-assignment-service
+    build:
+      context: .
+      cache_from:
+        - mojaloop/role-assignment-service
+    ports:
+      - "3008:3008"
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: wget -q http://172.17.0.1:3008/health -O /dev/null || exit 1
+      timeout: 20s
+      retries: 30
+      interval: 15s
+
   keto:
     container_name: keto
     image: oryd/keto:v0.6.0-alpha.1-sqlite
@@ -55,3 +73,87 @@ services:
     volumes:
       - ./docker/relation-tuples:/opt/relation-tuples
     command: relation-tuple create /opt/relation-tuples/init_tuples.json
+
+  central-ledger:
+    image: mojaloop/central-ledger:v13.11.1
+    container_name: central-ledger
+    command: sh -c "/opt/central-ledger/wait4/wait4.js central-ledger && node src/api/index.js"
+    ports:
+      - "3001:3001"
+    volumes:
+       - ./docker/central-ledger/default.json:/opt/central-ledger/config/default.json
+       - ./docker/wait4:/opt/central-ledger/wait4
+    environment:
+      - LOG_LEVEL=info
+      - CLEDG_MONGODB__DISABLED=false
+    networks:
+      - mojaloop-net
+    depends_on:
+      - mysql
+      - kafka
+      - objstore
+    healthcheck:
+      test: wget -q http://localhost:3001/health -O /dev/null || exit 1
+      timeout: 20s
+      retries: 30
+      interval: 30s
+      start_period: 30s
+    user: root
+
+  objstore:
+    image: mongo:latest
+    container_name: objstore
+    # Disable logging, this container is not that important and rather verbose
+    logging:
+      driver: none
+    ports:
+      - "27017:27017"
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mysql:
+    image: mysql/mysql-server
+    container_name: mysql
+    ports:
+      - "3307:3306"
+    volumes:
+      # Note: this fixes the permissions issue, but docker-compose up will fail on first attempt
+      - ./docker/sql-init/:/docker-entrypoint-initdb.d/
+    environment:
+      - MYSQL_USER=${DBUSER:-central_ledger}
+      - MYSQL_PASSWORD=${DBPASS:-password}
+      - MYSQL_DATABASE=${DBUSER:-central_ledger}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s
+
+  kafka:
+    image: johnnypark/kafka-zookeeper:2.3.0
+    container_name: kafka
+    volumes:
+      - ./docker/kafka/:/opt/kafka_2.12-2.3.0/config/
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      - ZOO_LOG4J_PROP=WARN
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD" ,"/opt/kafka_2.12-2.3.0/bin/kafka-broker-api-versions.sh","--bootstrap-server","kafka:29092"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s

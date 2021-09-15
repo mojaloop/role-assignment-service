@@ -27,17 +27,33 @@
 
  --------------
  ******/
-import { Util } from '@mojaloop/central-services-shared'
-import Health from './health'
-import Metrics from './metrics'
-import Participants from './participants'
-const OpenapiBackend = Util.OpenapiBackend
+
+import Config from '~/shared/config'
+import { StateResponseToolkit } from '~/server/plugins/state'
+import { Request, ResponseObject } from '@hapi/hapi'
+import axios from 'axios'
+
+/**
+ * Operations on /participants
+ */
+
+/**
+ * summary: Get Participants
+ * description: The HTTP request GET /participants is used to return a list of participant identifiers
+ * parameters:
+ * produces: application/json
+ * responses: 200, 400, 401, 403, 404, 405, 406, 501, 503
+ */
+const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
+  try {
+    const response = await axios.get(`${Config.CENTRAL_SERVICE_ADMIN_URL}/participants`)
+    return h.response(response.data).code(200)
+  } catch (e) {
+    console.log(e)
+    return h.response().code(500)
+  }
+}
 
 export default {
-  HealthGet: Health.get,
-  MetricsGet: Metrics.get,
-  ParticipantsGet: Participants.get,
-  validationFail: OpenapiBackend.validationFail,
-  notFound: OpenapiBackend.notFound,
-  methodNotAllowed: OpenapiBackend.methodNotAllowed
+  get
 }
