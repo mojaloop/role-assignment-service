@@ -64,6 +64,8 @@ services:
     volumes:
       - ./docker/keto.yml:/opt/keto/keto.yml
     command: serve --config /opt/keto/keto.yml
+    networks:
+      - mojaloop-net
 
   keto-init:
     container_name: keto-init
@@ -73,6 +75,8 @@ services:
     volumes:
       - ./docker/relation-tuples:/opt/relation-tuples
     command: relation-tuple create /opt/relation-tuples/init_tuples.json
+    networks:
+      - mojaloop-net
 
   central-ledger:
     image: mojaloop/central-ledger:v13.11.1

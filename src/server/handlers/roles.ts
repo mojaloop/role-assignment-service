@@ -24,58 +24,37 @@
  - Name Surname <name.surname@gatesfoundation.com>
 
  - Kevin Leyow <kevin.leyow@modusbox.com>
+
  --------------
  ******/
 
-import rc from 'rc'
-import parse from 'parse-strings-in-object'
-import Config from '../../config/default.json'
-import Package from '../../package.json'
-export interface ServiceConfig {
-  // package.json
-  PACKAGE: Record<string, unknown>;
+import Config from '~/shared/config'
+import { StateResponseToolkit } from '~/server/plugins/state'
+import { Request, ResponseObject } from '@hapi/hapi'
 
-  // ../server.ts
-  PORT: number;
-  HOST: string;
+/**
+ * Operations on /roles
+ */
 
-  // inspect.ts
-  INSPECT?: {
-    DEPTH?: number;
-    SHOW_HIDDEN?: boolean;
-    COLOR?: boolean;
-  };
-
-  ENDPOINT_CACHE_CONFIG: {
-    expiresIn: number;
-    generateTimeout: number;
-  };
-  CENTRAL_SERVICE_ADMIN_URL: string;
-  ORY_KETO_READ_SERVICE_URL: string;
-  ORY_KETO_WRITE_SERVICE_URL: string;
-  ERROR_HANDLING: {
-    includeCauseExtension: boolean;
-    truncateExtensions: boolean;
-  };
-  INSTRUMENTATION: {
-    METRICS: {
-      DISABLED: boolean;
-      labels: {
-        eventId: string;
-      };
-      config: {
-        timeout: number;
-        prefix: string;
-        defaultLabels?: Map<string, string>;
-      };
-    };
-  };
-  ROLES_LIST: string[];
+/**
+ * summary: Get Roles
+ * description: The HTTP request GET /roles is used to return a list of role identifiers
+ * parameters:
+ * produces: application/json
+ * responses: 200, 400, 401, 403, 404, 405, 406, 501, 503
+ */
+const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
+  try {
+    const response = {
+      roles: Config.ROLES_LIST
+    }
+    return h.response(response).code(200)
+  } catch (e) {
+    console.log(e)
+    return h.response().code(500)
+  }
 }
 
-const RC = parse(rc('ROLE_ASSIGNMENT_SERVICE', Config)) as ServiceConfig
-
 export default {
-  ...RC,
-  PACKAGE: Package
+  get
 }

@@ -11,7 +11,8 @@
     "generateTimeout": 30000
   },
   "CENTRAL_SERVICE_ADMIN_URL": "http://central-ledger:3001",
-  "ORY_KETO_SERVICE_URL": "",
+  "ORY_KETO_READ_SERVICE_URL": "http://keto:4466",
+  "ORY_KETO_WRITE_SERVICE_URL": "http://keto:4467",
   "ERROR_HANDLING": {
     "includeCauseExtension": true,
     "truncateExtensions": true

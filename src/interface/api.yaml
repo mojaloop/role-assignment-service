@@ -13,34 +13,11 @@ servers:
 paths:
   /health:
     get:
-      tags:
-        - health
-      responses:
-        '200':
-          $ref: '#/components/responses/200'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '406':
-          $ref: '#/components/responses/406'
-        '501':
-          $ref: '#/components/responses/501'
-        '503':
-          $ref: '#/components/responses/503'
       operationId: HealthGet
       summary: Health check endpoint
       description: >-
         The HTTP request GET /health is used to return the current status of the
         API.
-  /metrics:
-    get:
       tags:
         - health
       responses:
@@ -62,13 +39,38 @@ paths:
           $ref: '#/components/responses/501'
         '503':
           $ref: '#/components/responses/503'
+
+  /metrics:
+    get:
       operationId: MetricsGet
       summary: Prometheus metrics endpoint
       description: The HTTP request GET /metrics is used to return metrics for the API.
-  /participants:
-    get:
       tags:
         - health
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '406':
+          $ref: '#/components/responses/406'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+
+  /participants:
+    get:
+      operationId: ParticipantsGet
+      description: The HTTP request GET /participants is used to return a list of participants.
       responses:
         '200':
           description: List of participants
@@ -92,9 +94,104 @@ paths:
           $ref: '#/components/responses/501'
         '503':
           $ref: '#/components/responses/503'
-      operationId: ParticipantsGet
-      summary: Prometheus metrics endpoint
-      description: The HTTP request GET /participants is used to return a list of participants.
+
+  /roles:
+    get:
+      operationId: RolesGet
+      description: The HTTP request GET /roles is used to return a list of roles.
+      responses:
+        '200':
+          description: List of assignable roles
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '406':
+          $ref: '#/components/responses/406'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+
+  /users/{ID}/participants:
+    parameters:
+      - name: ID
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: UsersIDParticipantsGet
+      description: The HTTP request GET /users/{ID}/participants is used to return a list of participants assigned to a user.
+      responses:
+        '200':
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '406':
+          $ref: '#/components/responses/406'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+
+  /users/{ID}/roles:
+    parameters:
+      - name: ID
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: UsersIDRolesGet
+      description: The HTTP request GET /users/{ID}/roles is used to return a list of roles assigned to a user.
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '406':
+          $ref: '#/components/responses/406'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+
+
 components:
   responses:
     '200':

@@ -34,6 +34,7 @@ import {
 import { ResponseToolkit, Server } from '@hapi/hapi'
 import { logger } from '~/shared/logger'
 import * as keto from '@ory/keto-client'
+import Config from '~/shared/config'
 
 export interface StateResponseToolkit extends ResponseToolkit {
   getLogger: () => SDKLogger.Logger
@@ -47,8 +48,14 @@ export const StatePlugin = {
   once: true,
 
   register: async (server: Server): Promise<void> => {
-    const oryKetoReadApi = new keto.ReadApi()
-    const oryKetoWriteApi = new keto.WriteApi()
+    const oryKetoReadApi = new keto.ReadApi(
+      undefined,
+      Config.ORY_KETO_READ_SERVICE_URL
+    )
+    const oryKetoWriteApi = new keto.WriteApi(
+      undefined,
+      Config.ORY_KETO_WRITE_SERVICE_URL
+    )
 
     logger.info('StatePlugin: plugin initializing')
 

@@ -1,51 +1,16 @@
 [
   {
     "$schema": ".relation_tuple.schema.json",
-    "namespace": "videos",
-    "object": "/cats",
-    "relation": "owner",
-    "subject": "cat lady"
+    "namespace": "participants",
+    "object": "dfspa",
+    "relation": "member",
+    "subject": "myTestUserID"
   },
   {
-    "$schema": "./relation_tuple.schema.json",
-    "namespace": "videos",
-    "object": "/cats/1.mp4",
-    "relation": "owner",
-    "subject": "videos:/cats#owner"
-  },
-  {
-    "$schema": "./relation_tuple.schema.json",
-    "namespace": "videos",
-    "object": "/cats/2.mp4",
-    "relation": "owner",
-    "subject": "videos:/cats#owner"
-  },
-  {
-    "$schema": "./relation-tuples/relation_tuple.schema.json",
-    "namespace": "videos",
-    "object": "/cats",
-    "relation": "view",
-    "subject": "videos:/cats#owner"
-  },
-  {
-    "$schema": "./relation-tuples/relation_tuple.schema.json",
-    "namespace": "videos",
-    "object": "/cats/1.mp4",
-    "relation": "view",
-    "subject": "videos:/cats/1.mp4#owner"
-  },
-  {
-    "$schema": "./relation-tuples/relation_tuple.schema.json",
-    "namespace": "videos",
-    "object": "/cats/1.mp4",
-    "relation": "view",
-    "subject": "*"
-  },
-  {
-    "$schema": "./relation_tuple.schema.json",
-    "namespace": "videos",
-    "object": "/cats/2.mp4",
-    "relation": "view",
-    "subject": "videos:/cats/2.mp4#owner"
+    "$schema": ".relation_tuple.schema.json",
+    "namespace": "roles",
+    "object": "ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6",
+    "relation": "member",
+    "subject": "myTestUserID"
   }
 ]

@@ -5,7 +5,11 @@ log:
 
 namespaces:
   - id: 0
-    name: videos
+    name: participants
+  - id: 1
+    name: roles
+  - id: 2
+    name: permissions
 
 dsn: memory
 
