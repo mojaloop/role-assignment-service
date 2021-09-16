@@ -30,23 +30,67 @@
 
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
+import { PatchDelta } from '@ory/keto-client';
+
+interface PatchOperation {
+  roleId: string;
+  action: 'insert' | 'delete';
+}
+interface UserIDRolesPatchRequest {
+  roleOperations: PatchOperation[];
+}
 
 const get = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
     const userId = request.params.ID
     const response = await h.getKetoReadApi().getRelationTuples(
-      'roles',
+      'role',
       undefined,
       'member',
       userId
     )
-    return h.response(response.data).code(200)
+    if (!response.data.relation_tuples) {
+      return h.response({
+        roles: []
+      }).code(200)
+    }
+    const rolesIdList = response.data.relation_tuples.map(function (relationTuple) {
+      return relationTuple.object
+    })
+    return h.response({
+      roles: rolesIdList
+    }).code(200)
   } catch (e) {
-    console.log(e)
+    h.getLogger().error(e)
+    return h.response().code(500)
+  }
+}
+
+const patch = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
+  try {
+    const userId = request.params.ID
+    const payload = request.payload as UserIDRolesPatchRequest
+    const roleDelta: PatchDelta[] = payload.roleOperations.map(function (operation) {
+      return {
+        action: operation.action,
+        relation_tuple: {
+          namespace: 'role',
+          object: operation.roleId,
+          relation: 'member',
+          subject: userId
+        }
+      }
+    })
+    await h.getKetoWriteApi().patchRelationTuples(roleDelta)
+    // NOTE: return a 200 or 204 here?
+    return h.response().code(200)
+  } catch (e) {
+    h.getLogger().error(e)
     return h.response().code(500)
   }
 }
 
 export default {
-  get
+  get,
+  patch
 }

@@ -33,10 +33,6 @@ import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
 
 /**
- * Operations on /roles
- */
-
-/**
  * summary: Get Roles
  * description: The HTTP request GET /roles is used to return a list of role identifiers
  * parameters:
@@ -45,12 +41,13 @@ import { Request, ResponseObject } from '@hapi/hapi'
  */
 const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
+    // TODO: convert this to return a user list from wso2
     const response = {
       roles: Config.ROLES_LIST
     }
     return h.response(response).code(200)
   } catch (e) {
-    console.log(e)
+    h.getLogger().error(e)
     return h.response().code(500)
   }
 }

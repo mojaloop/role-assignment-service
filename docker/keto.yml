@@ -5,11 +5,9 @@ log:
 
 namespaces:
   - id: 0
-    name: participants
+    name: participant
   - id: 1
-    name: roles
-  - id: 2
-    name: permissions
+    name: role
 
 dsn: memory
 

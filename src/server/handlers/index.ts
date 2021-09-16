@@ -43,7 +43,9 @@ export default {
   ParticipantsGet: Participants.get,
   RolesGet: roles.get,
   UsersIDParticipantsGet: UsersIDParticipants.get,
+  UsersIDParticipantsPatch: UsersIDParticipants.patch,
   UsersIDRolesGet: UsersIDRoles.get,
+  UsersIDRolesPatch: UsersIDRoles.patch,
   validationFail: OpenapiBackend.validationFail,
   notFound: OpenapiBackend.notFound,
   methodNotAllowed: OpenapiBackend.methodNotAllowed

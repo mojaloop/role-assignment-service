@@ -59,8 +59,8 @@ services:
     container_name: keto
     image: oryd/keto:v0.6.0-alpha.1-sqlite
     ports:
-      - '4466:4466'
-      - '4467:4467'
+      - '4466:4466' # Read port
+      - '4467:4467' # Write port
     volumes:
       - ./docker/keto.yml:/opt/keto/keto.yml
     command: serve --config /opt/keto/keto.yml

@@ -1,14 +1,14 @@
 [
   {
     "$schema": ".relation_tuple.schema.json",
-    "namespace": "participants",
+    "namespace": "participant",
     "object": "dfspa",
     "relation": "member",
     "subject": "myTestUserID"
   },
   {
     "$schema": ".relation_tuple.schema.json",
-    "namespace": "roles",
+    "namespace": "role",
     "object": "ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6",
     "relation": "member",
     "subject": "myTestUserID"

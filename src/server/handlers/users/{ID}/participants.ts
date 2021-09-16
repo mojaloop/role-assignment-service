@@ -30,17 +30,60 @@
 
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
+import { PatchDelta } from '@ory/keto-client'
+
+interface PatchOperation {
+  participantId: string;
+  action: 'insert' | 'delete';
+}
+interface UserIDParticipantsPatchRequest {
+  participantOperations: PatchOperation[];
+}
 
 const get = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
     const userId = request.params.ID
     const response = await h.getKetoReadApi().getRelationTuples(
-      'participants',
+      'participant',
       undefined,
       'member',
       userId
     )
-    return h.response(response.data).code(200)
+    if (!response.data.relation_tuples) {
+      return h.response({
+        participants: []
+      }).code(200)
+    }
+    const participantIdList = response.data.relation_tuples.map(function (relationTuple) {
+      return relationTuple.object
+    })
+    return h.response({
+      participants: participantIdList
+    }).code(200)
+  } catch (e) {
+    console.log(e)
+    return h.response().code(500)
+  }
+}
+
+const patch = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
+  try {
+    const userId = request.params.ID
+    const payload = request.payload as UserIDParticipantsPatchRequest
+    const participantDelta: PatchDelta[] = payload.participantOperations.map(function (operation) {
+      return {
+        action: operation.action,
+        relation_tuple: {
+          namespace: 'participant',
+          object: operation.participantId,
+          relation: 'member',
+          subject: userId
+        }
+      }
+    })
+    await h.getKetoWriteApi().patchRelationTuples(participantDelta)
+    // NOTE: return a 200 or 204 here?
+    return h.response().code(200)
   } catch (e) {
     console.log(e)
     return h.response().code(500)
@@ -48,5 +91,6 @@ const get = async (_context: unknown, request: Request, h: StateResponseToolkit)
 }
 
 export default {
-  get
+  get,
+  patch
 }

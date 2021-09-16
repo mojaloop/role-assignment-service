@@ -156,7 +156,52 @@ paths:
           $ref: '#/components/responses/501'
         '503':
           $ref: '#/components/responses/503'
+    patch:
+      operationId: UsersIDParticipantsPatch
+      description: The HTTP request PATCH /users/{ID}/participants is used to assign a participant to a user.
+      requestBody:
+        required: true
+        content:
+           application/json:
+              schema:
+                type: object
+                properties:
+                  participantOperations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        participantId:
+                          type: string
+                        action:
+                          type: string
+                          enum:
+                            - insert
+                            - delete
 
+      responses:
+        '200':
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '406':
+          $ref: '#/components/responses/406'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
   /users/{ID}/roles:
     parameters:
       - name: ID
@@ -190,7 +235,51 @@ paths:
           $ref: '#/components/responses/501'
         '503':
           $ref: '#/components/responses/503'
-
+    patch:
+      operationId: UsersIDRolesPatch
+      description: The HTTP request PATCH /users/{ID}/roles is used to assign a role to a user.
+      requestBody:
+        required: true
+        content:
+           application/json:
+              schema:
+                type: object
+                properties:
+                  roleOperations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        roleId:
+                          type: string
+                        action:
+                          type: string
+                          enum:
+                            - insert
+                            - delete
+      responses:
+        '200':
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '406':
+          $ref: '#/components/responses/406'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
 
 components:
   responses:

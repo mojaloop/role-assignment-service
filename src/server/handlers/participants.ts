@@ -33,6 +33,15 @@ import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
 import axios from 'axios'
 
+interface Participant {
+  name: string;
+  id: string;
+  created: string;
+  isActive: boolean;
+  links: Record<string, unknown>;
+  accounts: Record<string, unknown>[];
+}
+
 /**
  * Operations on /participants
  */
@@ -47,9 +56,18 @@ import axios from 'axios'
 const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
     const response = await axios.get(`${Config.CENTRAL_SERVICE_ADMIN_URL}/participants`)
-    return h.response(response.data).code(200)
+    const participantList = response.data as Participant[]
+    const participantIdList = participantList.map(function (obj) {
+      if (obj.isActive) {
+        return obj.name
+      }
+      return null
+    })
+    return h.response({
+      participants: participantIdList
+    }).code(200)
   } catch (e) {
-    console.log(e)
+    h.getLogger().error(e)
     return h.response().code(500)
   }
 }
