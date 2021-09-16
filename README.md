@@ -3,6 +3,7 @@
 [![Git Releases](https://img.shields.io/github/release/mojaloop/role-assignment-service.svg?style=flat)](https://github.com/mojaloop/role-assignment-service/releases)
 [![CircleCI](https://circleci.com/gh/mojaloop/role-assignment-service.svg?style=svg)](https://circleci.com/gh/mojaloop/role-assignment-service)
 
+API service for assigning roles and participants to users.
 ## Overview
 
 - [Documentation](./docs/README.md)
