@@ -35,23 +35,28 @@ const defaultMockConfig: ServiceConfig = {
     generateTimeout: 5000
   },
   CENTRAL_SERVICE_ADMIN_URL: 'central-ledger',
-  ORY_KETO_SERVICE_URL: 'ory-keto',
+  ORY_KETO_READ_SERVICE_URL: 'http://keto:4466',
+  ORY_KETO_WRITE_SERVICE_URL: 'http://keto:4467',
   ERROR_HANDLING: {
     includeCauseExtension: true,
-    truncateExtensions: true,
+    truncateExtensions: true
   },
   INSTRUMENTATION: {
     METRICS: {
       DISABLED: false,
       labels: {
-        eventId: "*"
+        eventId: '*'
       },
       config: {
         timeout: 5000,
-        prefix: "moja_ra_api",
+        prefix: 'moja_ra_api'
       }
     }
   },
+  ROLES_LIST: [
+    'USER_ROLE_abc7a2fd-4acf-4547-a194-1673f63eb37c',
+    'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
+  ]
 }
 
 export default defaultMockConfig

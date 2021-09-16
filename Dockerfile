@@ -24,11 +24,11 @@ WORKDIR /opt/role-assignment-service
 RUN mkdir ./logs && touch ./logs/combined.log
 RUN ln -sf /dev/stdout ./logs/combined.log
 
-# Create a non-root user: ml-user
-RUN adduser -D ml-user
-USER ml-user
+# Create a non-root user: ra-user
+RUN adduser -D ra-user
+USER ra-user
 
-COPY --chown=ml-user --from=builder /opt/role-assignment-service .
+COPY --chown=ra-user --from=builder /opt/role-assignment-service .
 
 # skip this step for now - in the future we need to properly compile to js
 # but before then, we still need ts-node and friends

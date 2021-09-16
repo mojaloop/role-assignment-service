@@ -28,17 +28,20 @@
  --------------
  ******/
 
+import axios from 'axios'
 import Config from '~/shared/config'
-import { StateResponseToolkit } from '~/server/plugins/state'
-import { Request, ResponseObject } from '@hapi/hapi'
 
-const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
-  const response = {
+describe('GET /roles', (): void => {
+  // list of roles are hard coded in config/default.json
+  const expectedResp = {
     roles: Config.ROLES_LIST
   }
-  return h.response(response).code(200)
-}
 
-export default {
-  get
-}
+  it('returns list of role ids', async (): Promise<void> => {
+    const scenariosURI = 'http://127.0.0.1:3008/roles'
+    const response = await axios.get(scenariosURI)
+
+    expect(response.status).toBe(200)
+    expect(response.data).toEqual(expectedResp)
+  })
+})

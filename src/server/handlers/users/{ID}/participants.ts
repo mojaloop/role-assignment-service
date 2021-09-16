@@ -49,12 +49,7 @@ const get = async (_context: unknown, request: Request, h: StateResponseToolkit)
       'member',
       userId
     )
-    if (!response.data.relation_tuples) {
-      return h.response({
-        participants: []
-      }).code(200)
-    }
-    const participantIdList = response.data.relation_tuples.map(function (relationTuple) {
+    const participantIdList = response.data.relation_tuples?.map(function (relationTuple) {
       return relationTuple.object
     })
     return h.response({
@@ -86,6 +81,7 @@ const patch = async (_context: unknown, request: Request, h: StateResponseToolki
     return h.response().code(200)
   } catch (e) {
     h.getLogger().error(e)
+    // TODO: add error information
     return h.response().code(500)
   }
 }

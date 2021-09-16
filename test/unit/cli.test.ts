@@ -53,7 +53,8 @@ describe('cli', (): void => {
         generateTimeout: 30000
       },
       CENTRAL_SERVICE_ADMIN_URL: 'http://central-ledger:3001',
-      ORY_KETO_SERVICE_URL: '',
+      ORY_KETO_READ_SERVICE_URL: 'http://keto:4466',
+      ORY_KETO_WRITE_SERVICE_URL: 'http://keto:4467',
       ERROR_HANDLING: {
         includeCauseExtension: true,
         truncateExtensions: true
@@ -73,13 +74,16 @@ describe('cli', (): void => {
           }
         }
       },
+      ROLES_LIST: [
+        'USER_ROLE_abc7a2fd-4acf-4547-a194-1673f63eb37c',
+        'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
+      ]
     })
 
     expect(server.run).toHaveBeenCalledWith(expectedConfig)
   })
 
   it('start the api only', async (): Promise<void> => {
-
     process.argv = ['jest', 'cli.ts', 'api']
     const cli = await import('~/cli')
 
@@ -100,7 +104,8 @@ describe('cli', (): void => {
         generateTimeout: 30000
       },
       CENTRAL_SERVICE_ADMIN_URL: 'http://central-ledger:3001',
-      ORY_KETO_SERVICE_URL: '',
+      ORY_KETO_READ_SERVICE_URL: 'http://keto:4466',
+      ORY_KETO_WRITE_SERVICE_URL: 'http://keto:4467',
       ERROR_HANDLING: {
         includeCauseExtension: true,
         truncateExtensions: true
@@ -120,6 +125,10 @@ describe('cli', (): void => {
           }
         }
       },
+      ROLES_LIST: [
+        'USER_ROLE_abc7a2fd-4acf-4547-a194-1673f63eb37c',
+        'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
+      ]
     })
 
     expect(server.run).toHaveBeenCalledWith(expectedConfig)

@@ -28,17 +28,51 @@
  --------------
  ******/
 
-import Config from '~/shared/config'
+import { Request } from '@hapi/hapi'
+import Logger from '@mojaloop/central-services-logger'
+
 import { StateResponseToolkit } from '~/server/plugins/state'
-import { Request, ResponseObject } from '@hapi/hapi'
+import RolesHandler from '~/server/handlers/roles'
+import { logger } from '~/shared/logger'
+import Config from '~/shared/config'
 
-const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
-  const response = {
-    roles: Config.ROLES_LIST
-  }
-  return h.response(response).code(200)
-}
+const mockLoggerPush = jest.spyOn(Logger, 'push')
+const mockLoggerError = jest.spyOn(Logger, 'error')
 
-export default {
-  get
-}
+describe('roles handler', () => {
+  beforeEach((): void => {
+    mockLoggerPush.mockReturnValue(null)
+    mockLoggerError.mockReturnValue(null)
+  })
+
+  describe('GET /roles', () => {
+    const toolkit = {
+      getLogger: jest.fn(() => logger),
+      getKetoReadApi: jest.fn(),
+      getKetoWriteApi: jest.fn(),
+      response: jest.fn(() => ({
+        code: jest.fn((code: number) => ({
+          statusCode: code
+        }))
+      }))
+    }
+
+    it('handles a successful request', async () => {
+      const request = {
+        method: 'GET',
+        url: '/roles',
+        headers: {}
+      }
+
+      const response = await RolesHandler.get(
+        null,
+        request as unknown as Request,
+        toolkit as unknown as StateResponseToolkit)
+
+      expect(response.statusCode).toBe(200)
+      expect(toolkit.response).toBeCalledWith({
+        roles: Config.ROLES_LIST
+      })
+    })
+  })
+})

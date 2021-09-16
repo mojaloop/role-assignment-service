@@ -28,17 +28,19 @@
  --------------
  ******/
 
-import Config from '~/shared/config'
-import { StateResponseToolkit } from '~/server/plugins/state'
-import { Request, ResponseObject } from '@hapi/hapi'
+import axios from 'axios'
 
-const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
-  const response = {
-    roles: Config.ROLES_LIST
+describe('GET /participants', (): void => {
+  // central-ledger has a default Hub participant
+  const expectedResp = {
+    participants: ['Hub']
   }
-  return h.response(response).code(200)
-}
 
-export default {
-  get
-}
+  it('returns participant id list queried from central ledger', async (): Promise<void> => {
+    const scenariosURI = 'http://127.0.0.1:3008/participants'
+    const response = await axios.get(scenariosURI)
+
+    expect(response.status).toBe(200)
+    expect(response.data).toEqual(expectedResp)
+  })
+})

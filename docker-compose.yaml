@@ -67,16 +67,16 @@ services:
     networks:
       - mojaloop-net
 
-  keto-init:
-    container_name: keto-init
-    image: oryd/keto:v0.6.0-alpha.1-sqlite
-    environment:
-      - KETO_WRITE_REMOTE=keto:4467
-    volumes:
-      - ./docker/relation-tuples:/opt/relation-tuples
-    command: relation-tuple create /opt/relation-tuples/init_tuples.json
-    networks:
-      - mojaloop-net
+  #keto-init:
+  #  container_name: keto-init
+  #  image: oryd/keto:v0.6.0-alpha.1-sqlite
+  #  environment:
+  #    - KETO_WRITE_REMOTE=keto:4467
+  #  volumes:
+  #    - ./docker/relation-tuples:/opt/relation-tuples
+  #  command: relation-tuple create /opt/relation-tuples/init_tuples.json
+  #  networks:
+  #    - mojaloop-net
 
   central-ledger:
     image: mojaloop/central-ledger:v13.11.1

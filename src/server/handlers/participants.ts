@@ -42,28 +42,19 @@ interface Participant {
   accounts: Record<string, unknown>[];
 }
 
-/**
- * summary: Get Participants
- * description: The HTTP request GET /participants is used to return a list of participant identifiers
- * parameters:
- * produces: application/json
- * responses: 200, 400, 401, 403, 404, 405, 406, 501, 503
- */
 const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
     const response = await axios.get(`${Config.CENTRAL_SERVICE_ADMIN_URL}/participants`)
     const participantList = response.data as Participant[]
     const participantIdList = participantList.map(function (obj) {
-      if (obj.isActive) {
-        return obj.name
-      }
-      return null
+      return obj.name
     })
     return h.response({
       participants: participantIdList
     }).code(200)
   } catch (e) {
     h.getLogger().error(e)
+    // TODO: add error information
     return h.response().code(500)
   }
 }
