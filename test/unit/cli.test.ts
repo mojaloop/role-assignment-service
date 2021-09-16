@@ -26,8 +26,10 @@
  - Kevin Leyow <kevin.leyow@modusbox.com>
  --------------
  ******/
+
 import Config from '~/shared/config'
 import server from '~/server'
+
 jest.mock('~/server')
 jest.mock('~/shared/logger')
 
