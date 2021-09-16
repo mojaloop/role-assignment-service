@@ -61,7 +61,7 @@ const get = async (_context: unknown, request: Request, h: StateResponseToolkit)
       participants: participantIdList
     }).code(200)
   } catch (e) {
-    console.log(e)
+    h.getLogger().error(e)
     return h.response().code(500)
   }
 }
@@ -85,7 +85,7 @@ const patch = async (_context: unknown, request: Request, h: StateResponseToolki
     // NOTE: return a 200 or 204 here?
     return h.response().code(200)
   } catch (e) {
-    console.log(e)
+    h.getLogger().error(e)
     return h.response().code(500)
   }
 }

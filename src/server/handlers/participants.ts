@@ -43,10 +43,6 @@ interface Participant {
 }
 
 /**
- * Operations on /participants
- */
-
-/**
  * summary: Get Participants
  * description: The HTTP request GET /participants is used to return a list of participant identifiers
  * parameters:

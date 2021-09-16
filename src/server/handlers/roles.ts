@@ -35,13 +35,14 @@ import { Request, ResponseObject } from '@hapi/hapi'
 /**
  * summary: Get Roles
  * description: The HTTP request GET /roles is used to return a list of role identifiers
+ *              that can be assigned to a user.
  * parameters:
  * produces: application/json
  * responses: 200, 400, 401, 403, 404, 405, 406, 501, 503
  */
 const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
-    // TODO: convert this to return a user list from wso2
+    // TODO: convert this to query and return a user list from wso2
     const response = {
       roles: Config.ROLES_LIST
     }

@@ -30,7 +30,7 @@
 
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
-import { PatchDelta } from '@ory/keto-client';
+import { PatchDelta } from '@ory/keto-client'
 
 interface PatchOperation {
   roleId: string;

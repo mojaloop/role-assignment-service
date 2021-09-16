@@ -78,6 +78,12 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  participants:
+                    type: array
+                    items:
+                      type: string
+
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -106,6 +112,12 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  roles:
+                    type: array
+                    items:
+                      type: string
+
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -140,6 +152,12 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  participants:
+                    type: array
+                    items:
+                      type: string
+
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -202,6 +220,7 @@ paths:
           $ref: '#/components/responses/501'
         '503':
           $ref: '#/components/responses/503'
+
   /users/{ID}/roles:
     parameters:
       - name: ID
@@ -219,6 +238,11 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  roles:
+                    type: array
+                    items:
+                      type: string
         '400':
           $ref: '#/components/responses/400'
         '401':
