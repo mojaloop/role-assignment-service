@@ -37,6 +37,9 @@ const defaultMockConfig: ServiceConfig = {
   CENTRAL_SERVICE_ADMIN_URL: 'central-ledger',
   ORY_KETO_READ_SERVICE_URL: 'http://keto:4466',
   ORY_KETO_WRITE_SERVICE_URL: 'http://keto:4467',
+  WSO2IS_USER_LIST_URL: 'https://identity-server:9443/scim2/Users',
+  WSO2_USER: 'admin',
+  WSO2_PASSWORD: 'admin',
   ERROR_HANDLING: {
     includeCauseExtension: true,
     truncateExtensions: true

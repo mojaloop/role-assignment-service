@@ -19,3 +19,8 @@ Scenario: Patch User Participants
   Given role-assignment-service server
   When I make a PATCH User Participants request
   Then The status should be 'OK'
+
+Scenario: Get Users
+  Given role-assignment-service server
+  When I make a GET Users request
+  Then The status should be 'OK'

@@ -53,6 +53,9 @@ export interface ServiceConfig {
   CENTRAL_SERVICE_ADMIN_URL: string;
   ORY_KETO_READ_SERVICE_URL: string;
   ORY_KETO_WRITE_SERVICE_URL: string;
+  WSO2IS_USER_LIST_URL: string;
+  WSO2_USER: string;
+  WSO2_PASSWORD: string;
   ERROR_HANDLING: {
     includeCauseExtension: boolean;
     truncateExtensions: boolean;

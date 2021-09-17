@@ -305,5 +305,49 @@ describe('index', (): void => {
         })
       })
     })
+
+    describe('/users', (): void => {
+      const mockWso2UserListResponse = {
+        data: {
+          totalResults: 1,
+          startIndex: 1,
+          itemsPerPage: 1,
+          schemas: [],
+          Resources: [
+            {
+              emails: [],
+              meta: {},
+              roles: [],
+              name: { givenName: 'user', familyName: 'name' },
+              id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+              userName: 'user'
+            }
+          ]
+        }
+      }
+      it('GET /user', async (): Promise<void> => {
+        axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserListResponse)
+
+        const request = {
+          method: 'GET',
+          url: '/users',
+          headers: {}
+        }
+
+        const response = await server.inject(request)
+        expect(response.statusCode).toBe(200)
+        expect(response.result).toEqual({
+          users: [
+            {
+              id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+              name: { givenName: 'user', familyName: 'name' }
+            }]
+        })
+        expect(axios.get).toHaveBeenCalledWith(
+          'https://identity-server:9443/scim2/Users',
+          expect.any(Object)
+        )
+      })
+    })
   })
 })

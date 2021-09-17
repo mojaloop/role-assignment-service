@@ -13,6 +13,8 @@ const expectedContainers = [
   'central-ledger',
   'kafka',
   'mysql',
+  'identity-server',
+  'mysql-is'
 ]
 
 let retries = 40

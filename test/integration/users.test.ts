@@ -30,6 +30,21 @@
 
 import axios from 'axios'
 
+describe('GET /users', (): void => {
+  // wso2is is preloaded with an admin account
+  const expectedResp = {
+    users: [expect.any(String)]
+  }
+
+  it('returns participant id list queried from wso2is', async (): Promise<void> => {
+    const scenariosURI = 'http://127.0.0.1:3008/users'
+    const response = await axios.get(scenariosURI)
+
+    expect(response.status).toBe(200)
+    expect(response.data).toEqual(expectedResp)
+  })
+})
+
 describe('GET/PATCH /users/{ID}/participants', (): void => {
   beforeAll(async (): Promise<void> => {
     // populate keto

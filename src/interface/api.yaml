@@ -67,13 +67,42 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
+  /users:
+    get:
+      operationId: UsersGet
+      description: The HTTP request GET /users is used to return a list of user ids.
+      responses:
+        '200':
+          description: List of user ids
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '406':
+          $ref: '#/components/responses/406'
+        '501':
+          $ref: '#/components/responses/501'
+        '503':
+          $ref: '#/components/responses/503'
+
+
   /participants:
     get:
       operationId: ParticipantsGet
-      description: The HTTP request GET /participants is used to return a list of participants.
+      description: The HTTP request GET /participants is used to return a list of participant ids.
       responses:
         '200':
-          description: List of participants
+          description: List of assignable participant ids
           content:
             application/json:
               schema:
@@ -104,10 +133,10 @@ paths:
   /roles:
     get:
       operationId: RolesGet
-      description: The HTTP request GET /roles is used to return a list of roles.
+      description: The HTTP request GET /roles is used to return a list of role ids.
       responses:
         '200':
-          description: List of assignable roles
+          description: List of assignable roles ids
           content:
             application/json:
               schema:
@@ -147,7 +176,7 @@ paths:
       description: The HTTP request GET /users/{ID}/participants is used to return a list of participants assigned to a user.
       responses:
         '200':
-          description: List of participants
+          description: List of participants ids that a user is a member of
           content:
             application/json:
               schema:
@@ -199,7 +228,7 @@ paths:
 
       responses:
         '200':
-          description: List of participants
+          description: OK
           content:
             application/json:
               schema:
@@ -233,7 +262,7 @@ paths:
       description: The HTTP request GET /users/{ID}/roles is used to return a list of roles assigned to a user.
       responses:
         '200':
-          description: List of roles
+          description: List of roles ids that a user is a member of
           content:
             application/json:
               schema:
@@ -283,7 +312,7 @@ paths:
                             - delete
       responses:
         '200':
-          description: List of participants
+          description: OK
           content:
             application/json:
               schema:
