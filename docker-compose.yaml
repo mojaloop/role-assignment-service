@@ -86,7 +86,7 @@ services:
       - "3001:3001"
     volumes:
        - ./docker/central-ledger/default.json:/opt/central-ledger/config/default.json
-       - ./docker/wait4:/opt/central-ledger/wait4
+       - ./scripts/wait4:/opt/central-ledger/wait4
     environment:
       - LOG_LEVEL=info
       - CLEDG_MONGODB__DISABLED=false
