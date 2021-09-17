@@ -30,9 +30,7 @@ USER ra-user
 
 COPY --chown=ra-user --from=builder /opt/role-assignment-service .
 
-# skip this step for now - in the future we need to properly compile to js
-# but before then, we still need ts-node and friends
-# RUN npm prune --production
+RUN npm prune --production
 
 EXPOSE 3008
 CMD ["npm", "run", "start"]
