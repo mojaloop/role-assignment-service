@@ -41,8 +41,7 @@ services:
     volumes:
       - ./docker/identity-server:/home/wso2carbon/wso2-config-volume
     depends_on:
-      mysql-is:
-        condition: service_healthy
+      - mysql-is
 
   role-assignment-service:
     container_name: role-assignment-service
