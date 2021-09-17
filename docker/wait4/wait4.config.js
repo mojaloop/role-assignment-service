@@ -40,5 +40,23 @@ module.exports = {
         }
       ]
     },
+    {
+      name: 'cicd-integration-tests',
+      // list of services to wait for
+      wait4: [
+        {
+          description: 'role-assignment-service',
+          uri: 'role-assignment-service:3008',
+          method: 'ncat',
+          retries: 30
+        },
+        {
+          description: 'central-ledger',
+          uri: 'central-ledger:3001',
+          method: 'ncat',
+          retries: 30
+        }
+      ]
+    }
   ]
 }

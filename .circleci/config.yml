@@ -170,18 +170,42 @@ jobs:
     executor: default-machine
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Set up NVM
+          command: |
+            echo ${NVM_DIR}
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v12.16.1
+            nvm alias default v12.16.1
+      - run:
+          name: install modules
+          command: |
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            node --version
+            npm ci
       - run:
           name: Create dir for test results
-          command: mkdir -p ./test/results
+          command: |
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            mkdir -p ./test/results
+      - run:
+          name: Build docker images
+          command: |
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            docker-compose up -d
+            ./scripts/wait4.js cicd-integration-tests
       - run:
           name: Execute integration tests
-          command: npm -s run test:integration
-          no_output_timeout: 25m
+          command: |
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            npm -s run test:integration
+      - run:
+          name: Prepare test results
+          command: |
+            mkdir -p test/results
+            mv junit.xml test/results
       - store_artifacts:
           path: ./test/results
-          prefix: test
       - store_test_results:
           path: ./test/results
 
