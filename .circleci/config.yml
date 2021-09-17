@@ -193,7 +193,7 @@ jobs:
           command: |
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             docker-compose up -d
-            ./scripts/wait4.js cicd-integration-tests
+            npm run wait-4-docker
       - run:
           name: Execute integration tests
           command: |

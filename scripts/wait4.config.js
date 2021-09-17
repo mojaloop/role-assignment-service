@@ -55,7 +55,7 @@ module.exports = {
           uri: 'localhost:3001',
           method: 'ncat',
           retries: 30
-        }
+        },
       ]
     }
   ]
