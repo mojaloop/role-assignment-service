@@ -33,7 +33,13 @@ import axios from 'axios'
 describe('GET /users', (): void => {
   // wso2is is preloaded with an admin account
   const expectedResp = {
-    users: [expect.any(String)]
+    users: [{
+      id: expect.any(String),
+      name: {
+        familyName: 'admin',
+        givenName: 'admin'
+      }
+    }]
   }
 
   it('returns participant id list queried from wso2is', async (): Promise<void> => {
