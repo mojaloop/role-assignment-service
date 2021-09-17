@@ -49,12 +49,6 @@ module.exports = {
           uri: 'localhost:3008',
           method: 'ncat',
           retries: 30
-        },
-        {
-          description: 'central-ledger',
-          uri: 'localhost:3001',
-          method: 'ncat',
-          retries: 30
         }
       ]
     }

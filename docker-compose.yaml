@@ -81,12 +81,13 @@ services:
   central-ledger:
     image: mojaloop/central-ledger:v13.11.1
     container_name: central-ledger
-    command: sh -c "/opt/central-ledger/wait4/wait4.js central-ledger && node src/api/index.js"
+    command: sh -c "/opt/central-ledger/scripts/wait4.js central-ledger && node src/api/index.js"
     ports:
       - "3001:3001"
     volumes:
-       - ./docker/central-ledger/default.json:/opt/central-ledger/config/default.json
-       - ./scripts/wait4:/opt/central-ledger/wait4
+      - ./docker/central-ledger/default.json:/opt/central-ledger/config/default.json
+      - ./scripts/wait4.js:/opt/central-ledger/scripts/wait4.js
+      - ./scripts/wait4.config.js:/opt/central-ledger/scripts/wait4.config.js
     environment:
       - LOG_LEVEL=info
       - CLEDG_MONGODB__DISABLED=false
