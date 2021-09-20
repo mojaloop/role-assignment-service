@@ -40,8 +40,8 @@ interface Wso2IsUser {
   meta: Record<string, unknown>;
   roles: Record<string, unknown>[];
   name: {
-    givenName: string;
-    familyName: string;
+    givenName: string | undefined;
+    familyName: string | undefined;
   };
   id: string;
   username: string
