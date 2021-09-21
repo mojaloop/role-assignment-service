@@ -36,7 +36,7 @@ import https from 'https'
 import Config from '~/shared/config'
 
 interface Wso2IsUser {
-  emails: string[];
+  emails: string[] | undefined;
   meta: Record<string, unknown>;
   roles: Record<string, unknown>[];
   name: {
@@ -44,7 +44,7 @@ interface Wso2IsUser {
     familyName: string | undefined;
   };
   id: string;
-  username: string
+  userName: string;
 }
 interface Wso2IsUserQueryResponse {
   totalResults: number;
@@ -70,7 +70,9 @@ const get = async (_context: unknown, _request: Request, h: StateResponseToolkit
     const userIdList = query.Resources.map(function (obj) {
       return {
         id: obj.id,
-        name: obj.name
+        name: obj.name,
+        username: obj.userName,
+        emails: obj.emails
       }
     })
     return h.response({ users: userIdList }).code(200)

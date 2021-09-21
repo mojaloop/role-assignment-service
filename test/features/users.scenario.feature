@@ -24,3 +24,8 @@ Scenario: Get Users
   Given role-assignment-service server
   When I make a GET Users request
   Then The status should be 'OK'
+
+Scenario: Get User by ID
+  Given role-assignment-service server
+  When I make a GET User by ID request
+  Then The status should be 'OK'

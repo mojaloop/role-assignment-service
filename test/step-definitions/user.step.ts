@@ -265,4 +265,36 @@ defineFeature(feature, (test): void => {
       expect(response.statusCode).toBe(200)
     })
   })
+
+  test('Get User By ID', ({ given, when, then }): void => {
+    const mockWso2UserResponse = {
+      data: {
+        name: { givenName: 'user', familyName: 'name' },
+        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+        userName: 'user'
+      }
+    }
+
+    given('role-assignment-service server', (): void => {
+      expect(server).toBeDefined()
+    })
+
+    when('I make a GET User by ID request', async (): Promise<ServerInjectResponse> => {
+      axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserResponse)
+      const request = {
+        method: 'GET',
+        url: '/users/9e666741-53f2-4fc0-8c50-d4fce6f59eca'
+      }
+      response = await server.inject(request)
+      return response
+    })
+
+    then('The status should be \'OK\'', (): void => {
+      expect(axios.get).toBeCalledWith(
+        'https://identity-server:9443/scim2/Users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+        expect.any(Object)
+      )
+      expect(response.statusCode).toBe(200)
+    })
+  })
 })

@@ -315,7 +315,7 @@ describe('index', (): void => {
           schemas: [],
           Resources: [
             {
-              emails: [],
+              emails: ['user@email.com'],
               meta: {},
               roles: [],
               name: { givenName: 'user', familyName: 'name' },
@@ -340,11 +340,46 @@ describe('index', (): void => {
           users: [
             {
               id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-              name: { givenName: 'user', familyName: 'name' }
+              name: { givenName: 'user', familyName: 'name' },
+              username: 'user',
+              emails: ['user@email.com']
             }]
         })
         expect(axios.get).toHaveBeenCalledWith(
           'https://identity-server:9443/scim2/Users',
+          expect.any(Object)
+        )
+      })
+    })
+
+    describe('/users/{ID}', (): void => {
+      const mockWso2UserResponse = {
+        data: {
+          name: { givenName: 'user', familyName: 'name' },
+          id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+          userName: 'user'
+        }
+      }
+      it('GET /user/{ID}', async (): Promise<void> => {
+        axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserResponse)
+
+        const request = {
+          method: 'GET',
+          url: '/users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+          headers: {}
+        }
+
+        const response = await server.inject(request)
+        expect(response.statusCode).toBe(200)
+        expect(response.result).toEqual({
+          user: {
+            id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+            name: { givenName: 'user', familyName: 'name' },
+            username: 'user'
+          }
+        })
+        expect(axios.get).toHaveBeenCalledWith(
+          'https://identity-server:9443/scim2/Users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
           expect.any(Object)
         )
       })

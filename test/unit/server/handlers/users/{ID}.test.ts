@@ -32,7 +32,7 @@ import { Request } from '@hapi/hapi'
 import Logger from '@mojaloop/central-services-logger'
 
 import { StateResponseToolkit } from '~/server/plugins/state'
-import UsersHandler from '~/server/handlers/users'
+import UsersIdHandler from '~/server/handlers/users/{ID}'
 import { logger } from '~/shared/logger'
 import axios from 'axios'
 
@@ -46,7 +46,7 @@ describe('users handler', () => {
     mockLoggerError.mockReturnValue(null)
   })
 
-  describe('GET /users', () => {
+  describe('GET /users/{ID}', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
       getKetoReadApi: jest.fn(),
@@ -58,51 +58,41 @@ describe('users handler', () => {
       }))
     }
 
-    const mockWso2UserListResponse = {
+    const mockWso2UserResponse = {
       data: {
-        totalResults: 1,
-        startIndex: 1,
-        itemsPerPage: 1,
-        schemas: [],
-        Resources: [
-          {
-            emails: ['user@email.com'],
-            meta: {},
-            roles: [],
-            name: { givenName: 'user', familyName: 'name' },
-            id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-            userName: 'user'
-          }
-        ]
+        name: { givenName: 'user', familyName: 'name' },
+        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+        userName: 'user'
       }
     }
 
     it('handles a successful request', async () => {
-      axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserListResponse)
+      axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserResponse)
 
       const request = {
         method: 'GET',
-        url: '/users',
-        headers: {}
+        url: '/users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+        headers: {},
+        params: {
+          ID: '9e666741-53f2-4fc0-8c50-d4fce6f59eca'
+        }
       }
 
-      const response = await UsersHandler.get(
+      const response = await UsersIdHandler.get(
         null,
         request as unknown as Request,
         toolkit as unknown as StateResponseToolkit)
 
       expect(response.statusCode).toBe(200)
       expect(toolkit.response).toBeCalledWith({
-        users: [
-          {
-            id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-            name: { givenName: 'user', familyName: 'name' },
-            username: 'user',
-            emails: ['user@email.com']
-          }]
+        user: {
+          id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+          name: { givenName: 'user', familyName: 'name' },
+          username: 'user'
+        }
       })
       expect(axios.get).toHaveBeenCalledWith(
-        'https://identity-server:9443/scim2/Users',
+        'https://identity-server:9443/scim2/Users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
         expect.any(Object)
       )
     })
@@ -114,11 +104,11 @@ describe('users handler', () => {
 
       const request = {
         method: 'GET',
-        url: '/users',
+        url: '/users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
         headers: {}
       }
 
-      const response = await UsersHandler.get(
+      const response = await UsersIdHandler.get(
         null,
         request as unknown as Request,
         toolkit as unknown as StateResponseToolkit
