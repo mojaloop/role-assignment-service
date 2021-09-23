@@ -49,9 +49,7 @@ const get = async (_context: unknown, request: Request, h: StateResponseToolkit)
       'member',
       userId
     )
-    const rolesIdList = response.data.relation_tuples?.map(function (relationTuple) {
-      return relationTuple.object
-    })
+    const rolesIdList = response.data.relation_tuples?.map(({ object }) => object)
     return h.response({
       roles: rolesIdList
     }).code(200)
@@ -66,17 +64,15 @@ const patch = async (_context: unknown, request: Request, h: StateResponseToolki
   try {
     const userId = request.params.ID
     const payload = request.payload as UserIDRolesPatchRequest
-    const roleDelta: PatchDelta[] = payload.roleOperations.map(function (operation) {
-      return {
-        action: operation.action,
-        relation_tuple: {
-          namespace: 'role',
-          object: operation.roleId,
-          relation: 'member',
-          subject: userId
-        }
+    const roleDelta: PatchDelta[] = payload.roleOperations.map((operation) => ({
+      action: operation.action,
+      relation_tuple: {
+        namespace: 'role',
+        object: operation.roleId,
+        relation: 'member',
+        subject: userId
       }
-    })
+    }))
     await h.getKetoWriteApi().patchRelationTuples(roleDelta)
     // NOTE: return a 200 or 204 here?
     return h.response().code(200)

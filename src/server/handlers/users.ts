@@ -67,14 +67,12 @@ const get = async (_context: unknown, _request: Request, h: StateResponseToolkit
       })
     })
     const query = response.data as Wso2IsUserQueryResponse
-    const userIdList = query.Resources.map(function (obj) {
-      return {
-        id: obj.id,
-        name: obj.name,
-        username: obj.userName,
-        emails: obj.emails
-      }
-    })
+    const userIdList = query.Resources.map((obj) => ({
+      id: obj.id,
+      name: obj.name,
+      username: obj.userName,
+      emails: obj.emails
+    }))
     return h.response({ users: userIdList }).code(200)
   } catch (e) {
     h.getLogger().error(e)

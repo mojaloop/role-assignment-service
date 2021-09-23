@@ -46,9 +46,7 @@ const get = async (_context: unknown, _request: Request, h: StateResponseToolkit
   try {
     const response = await axios.get(`${Config.CENTRAL_SERVICE_ADMIN_URL}/participants`)
     const participantList = response.data as Participant[]
-    const participantIdList = participantList.map(function (obj) {
-      return obj.name
-    })
+    const participantIdList = participantList.map((obj) => obj.name)
     return h.response({
       participants: participantIdList
     }).code(200)
