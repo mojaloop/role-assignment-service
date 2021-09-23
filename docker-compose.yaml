@@ -1,0 +1,169 @@
+version: "3.7"
+
+networks:
+  mojaloop-net:
+    name: mojaloop-net
+
+services:
+  mysql-is:
+    container_name: mysql-is
+    image: mysql:5.7.29
+    ports:
+      - 3306
+    networks:
+      - mojaloop-net
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_USER: wso2carbon
+        MYSQL_PASSWORD: wso2carbon
+    volumes:
+      - ./docker/mysql/scripts:/docker-entrypoint-initdb.d
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-uroot", "-proot"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+
+  identity-server:
+    container_name: identity-server
+    image: wso2/wso2is:5.7.0
+    ports:
+      - "9763:9763"
+      - "9443:9443"
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:9443/carbon/admin/login.jsp"]
+      timeout: 20s
+      retries: 45
+      interval: 15s
+    volumes:
+      - ./docker/identity-server:/home/wso2carbon/wso2-config-volume
+    depends_on:
+      - mysql-is
+
+  role-assignment-service:
+    container_name: role-assignment-service
+    image: mojaloop/role-assignment-service
+    build:
+      context: .
+      cache_from:
+        - mojaloop/role-assignment-service
+    ports:
+      - "3008:3008"
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: wget -q http://172.17.0.1:3008/health -O /dev/null || exit 1
+      timeout: 20s
+      retries: 30
+      interval: 15s
+
+  keto:
+    container_name: keto
+    image: oryd/keto:v0.6.0-alpha.1-sqlite
+    ports:
+      - '4466:4466' # Read port
+      - '4467:4467' # Write port
+    volumes:
+      - ./docker/keto.yml:/opt/keto/keto.yml
+    command: serve --config /opt/keto/keto.yml
+    networks:
+      - mojaloop-net
+
+  #keto-init:
+  #  container_name: keto-init
+  #  image: oryd/keto:v0.6.0-alpha.1-sqlite
+  #  environment:
+  #    - KETO_WRITE_REMOTE=keto:4467
+  #  volumes:
+  #    - ./docker/relation-tuples:/opt/relation-tuples
+  #  command: relation-tuple create /opt/relation-tuples/init_tuples.json
+  #  networks:
+  #    - mojaloop-net
+
+  central-ledger:
+    image: mojaloop/central-ledger:v13.11.1
+    container_name: central-ledger
+    command: sh -c "/opt/central-ledger/scripts/wait4.js central-ledger && node src/api/index.js"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./docker/central-ledger/default.json:/opt/central-ledger/config/default.json
+      - ./scripts/wait4.js:/opt/central-ledger/scripts/wait4.js
+      - ./scripts/wait4.config.js:/opt/central-ledger/scripts/wait4.config.js
+    environment:
+      - LOG_LEVEL=info
+      - CLEDG_MONGODB__DISABLED=false
+    networks:
+      - mojaloop-net
+    depends_on:
+      - mysql
+      - kafka
+      - objstore
+    healthcheck:
+      test: wget -q http://localhost:3001/health -O /dev/null || exit 1
+      timeout: 20s
+      retries: 30
+      interval: 30s
+      start_period: 30s
+    user: root
+
+  objstore:
+    image: mongo:latest
+    container_name: objstore
+    # Disable logging, this container is not that important and rather verbose
+    logging:
+      driver: none
+    ports:
+      - "27017:27017"
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mysql:
+    image: mysql/mysql-server
+    container_name: mysql
+    ports:
+      - "3307:3306"
+    volumes:
+      # Note: this fixes the permissions issue, but docker-compose up will fail on first attempt
+      - ./docker/sql-init/:/docker-entrypoint-initdb.d/
+    environment:
+      - MYSQL_USER=${DBUSER:-central_ledger}
+      - MYSQL_PASSWORD=${DBPASS:-password}
+      - MYSQL_DATABASE=${DBUSER:-central_ledger}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s
+
+  kafka:
+    image: johnnypark/kafka-zookeeper:2.3.0
+    container_name: kafka
+    volumes:
+      - ./docker/kafka/:/opt/kafka_2.12-2.3.0/config/
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      - ZOO_LOG4J_PROP=WARN
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD" ,"/opt/kafka_2.12-2.3.0/bin/kafka-broker-api-versions.sh","--bootstrap-server","kafka:29092"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s
