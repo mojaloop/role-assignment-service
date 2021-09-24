@@ -7,7 +7,7 @@ networks:
 services:
   mysql-is:
     container_name: mysql-is
-    image: mysql:8.0.26
+    image: mysql:5.7.29
     ports:
       - 3306
     networks:
