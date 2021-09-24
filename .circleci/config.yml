@@ -173,15 +173,14 @@ jobs:
       - run:
           name: Set up NVM
           command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
             echo ${NVM_DIR}
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm install --lts
+            nvm install v14.17.6
+            nvm alias default v14.17.6
       - run:
           name: install modules
           command: |
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use --lts
             node --version
             npm ci
       - run:
