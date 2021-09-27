@@ -378,7 +378,7 @@ jobs:
             docker push $DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:${CIRCLE_TAG}
       - slack/status:
           fail_only: true
-          webhook: "$SLACK_WEBHOOK_ANNOUNCMENT_CI_CD"
+          webhook: "$SLACK_WEBHOOK_ANNOUNCEMENT_CI_CD"
           failure_message: 'Publishing docker image failed for: \`"${DOCKER_ORG}/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_TAG}"\`'
 
   license-scan:
@@ -446,7 +446,7 @@ jobs:
           command: /tmp/ci-config/container-scanning/anchore-result-diff.js anchore-reports/node_12.16.1-alpine-policy.json anchore-reports/${CIRCLE_PROJECT_REPONAME}*-policy.json
       - slack/status:
           fail_only: true
-          webhook: "$SLACK_WEBHOOK_ANNOUNCMENT_CI_CD"
+          webhook: "$SLACK_WEBHOOK_ANNOUNCEMENT_CI_CD"
           failure_message: 'Anchore Image Scan failed  for: \`"${DOCKER_ORG}/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_TAG}"\`'
       - store_artifacts:
           path: anchore-reports
@@ -594,6 +594,11 @@ workflows:
             # - image-scan
             - test-unit
             - test-coverage
+            - test-integration
+            - test-bdd
+            - audit-licenses
+            - linting-check
+            - vulnerability-check
           filters:
             tags:
               only: /.*/
