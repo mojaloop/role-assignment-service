@@ -271,7 +271,8 @@ defineFeature(feature, (test): void => {
       data: {
         name: { givenName: 'user', familyName: 'name' },
         id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        userName: 'user'
+        userName: 'user',
+        emails: ['user@emails.com']
       }
     }
 

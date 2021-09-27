@@ -62,7 +62,8 @@ describe('users handler', () => {
       data: {
         name: { givenName: 'user', familyName: 'name' },
         id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        userName: 'user'
+        userName: 'user',
+        emails: ['user@email.com']
       }
     }
 
@@ -88,7 +89,8 @@ describe('users handler', () => {
         user: {
           id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
           name: { givenName: 'user', familyName: 'name' },
-          username: 'user'
+          username: 'user',
+          emails: ['user@email.com']
         }
       })
       expect(axios.get).toHaveBeenCalledWith(

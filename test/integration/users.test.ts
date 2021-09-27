@@ -178,7 +178,8 @@ describe('GET /users/{ID}', (): void => {
         familyName: 'admin',
         givenName: 'admin'
       },
-      username: expect.any(String)
+      username: expect.any(String),
+      emails: expect.any(Array)
     }
   }
 
