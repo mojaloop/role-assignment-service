@@ -1,4 +1,4 @@
-FROM node:14.3.0-alpine as builder
+FROM node:lts-alpine as builder
 USER root
 
 WORKDIR /opt/role-assignment-service
@@ -17,7 +17,7 @@ COPY . .
 # cleanup
 RUN apk del build-dependencies
 
-FROM node:14.3.0-alpine
+FROM node:lts-alpine
 WORKDIR /opt/role-assignment-service
 
 # Create empty log file & link stdout to the application log file

@@ -175,8 +175,8 @@ jobs:
           command: |
             echo ${NVM_DIR}
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm install v12.16.1
-            nvm alias default v12.16.1
+            nvm install v14.17.6
+            nvm alias default v14.17.6
       - run:
           name: install modules
           command: |
@@ -559,45 +559,44 @@ workflows:
       #           - master
 
       # New commits to master release automatically
-      #- release:
-      #    context: org-global
-      #    requires:
-      #      - test-unit
-      #      - test-coverage
-      #      - test-integration
-      #      - test-bdd
-      #      - audit-licenses
-      #      - linting-check
-      #      - vulnerability-check
-      #      # - image-scan
-      #      # - license-scan
-      #    filters:
-      #      branches:
-      #        only:
-      #          - master
+      - release:
+          context: org-global
+          requires:
+            - test-unit
+            - test-coverage
+            - test-integration
+            - test-bdd
+            - audit-licenses
+            - linting-check
+            - vulnerability-check
+            # - image-scan
+            # - license-scan
+          filters:
+            branches:
+              only:
+                - master
 
+      - github-release:
+          context: org-global
+          requires:
+            - release
+          filters:
+            branches:
+              only:
+                - master
 
-      #- github-release:
-      #    context: org-global
-      #    requires:
-      #      - release
-      #    filters:
-      #      branches:
-      #        only:
-      #          - master
-
-      ## New Tags are built and deployed as docker artifacts
-      #- publish:
-      #    context: org-global
-      #    requires:
-      #      - build-local
-      #      # - license-scan
-      #      # - image-scan
-      #      - test-unit
-      #      - test-coverage
-      #    filters:
-      #      tags:
-      #        only: /.*/
-      #      branches:
-      #        ignore:
-      #          - /.*/
+      # New Tags are built and deployed as docker artifacts
+      - publish:
+          context: org-global
+          requires:
+            - build-local
+            # - license-scan
+            # - image-scan
+            - test-unit
+            - test-coverage
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore:
+                - /.*/
