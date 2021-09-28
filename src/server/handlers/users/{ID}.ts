@@ -42,6 +42,7 @@ interface Wso2IsUser {
   };
   id: string;
   userName: string | undefined;
+  emails: string[] | undefined;
 }
 
 const get = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
@@ -61,7 +62,8 @@ const get = async (_context: unknown, request: Request, h: StateResponseToolkit)
     const user = {
       id: data.id,
       name: data.name,
-      username: data.userName
+      username: data.userName,
+      emails: data.emails
     }
     return h.response({ user: user }).code(200)
   } catch (e) {

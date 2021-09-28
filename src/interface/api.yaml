@@ -70,14 +70,12 @@ paths:
   /users:
     get:
       operationId: UsersGet
-      description: The HTTP request GET /users is used to return a list of user ids.
+      description: >-
+        The HTTP request GET /users is used to return a list of user.
+        Retrieves a user list from a WSO2 identity server.
       responses:
         '200':
-          description: List of user ids
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/schemas/UsersGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -104,14 +102,12 @@ paths:
           type: string
     get:
       operationId: UsersIDGet
-      description: The HTTP request GET /users is used to return a specific user
+      description: >-
+        The HTTP request GET /users is used to return a specific user.
+        Retrieves a user from a WSO2 identity server.
       responses:
         '200':
-          description: List of user ids
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/schemas/UsersIDGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -129,24 +125,15 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-
   /participants:
     get:
       operationId: ParticipantsGet
-      description: The HTTP request GET /participants is used to return a list of participant ids.
+      description: >-
+        The HTTP request GET /participants is used to return a list of participant ids.
+        Retrieves a participant list from a @mojaloop/central-ledger service.
       responses:
         '200':
-          description: List of assignable participant ids
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  participants:
-                    type: array
-                    items:
-                      type: string
-
+          $ref: '#/components/schemas/ParticipantsGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -167,20 +154,11 @@ paths:
   /roles:
     get:
       operationId: RolesGet
-      description: The HTTP request GET /roles is used to return a list of role ids.
+      description: >-
+        The HTTP request GET /roles is used to return a list of role ids.
       responses:
         '200':
-          description: List of assignable roles ids
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  roles:
-                    type: array
-                    items:
-                      type: string
-
+          $ref: '#/components/schemas/RolesGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -207,20 +185,13 @@ paths:
           type: string
     get:
       operationId: UsersIDParticipantsGet
-      description: The HTTP request GET /users/{ID}/participants is used to return a list of participants assigned to a user.
+      description: >-
+        The HTTP request GET /users/{ID}/participants is used to return a list
+        of participants assigned to a user.
+        Retrieves a user's assigned participant list from an ory/keto service.
       responses:
         '200':
-          description: List of participants ids that a user is a member of
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  participants:
-                    type: array
-                    items:
-                      type: string
-
+          $ref: '#/components/schemas/UsersIDParticipantsGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -239,34 +210,19 @@ paths:
           $ref: '#/components/responses/503'
     patch:
       operationId: UsersIDParticipantsPatch
-      description: The HTTP request PATCH /users/{ID}/participants is used to assign a participant to a user.
+      description: >-
+        The HTTP request PATCH /users/{ID}/participants is used to assign/remove
+        a participant to/from a user.
+        These participant operations are sent to an ory/keto service.
       requestBody:
         required: true
         content:
            application/json:
               schema:
-                type: object
-                properties:
-                  participantOperations:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        participantId:
-                          type: string
-                        action:
-                          type: string
-                          enum:
-                            - insert
-                            - delete
-
+                $ref: '#/components/schemas/UsersIDParticipantsPatchRequest'
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/responses/200'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -293,19 +249,13 @@ paths:
           type: string
     get:
       operationId: UsersIDRolesGet
-      description: The HTTP request GET /users/{ID}/roles is used to return a list of roles assigned to a user.
+      description: >-
+        The HTTP request GET /users/{ID}/roles is used to return a list of
+        roles assigned to a user.
+        Retrieves a user's assigned role list from an ory/keto service.
       responses:
         '200':
-          description: List of roles ids that a user is a member of
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  roles:
-                    type: array
-                    items:
-                      type: string
+          $ref: '#/components/schemas/UsersIDRolesGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -324,33 +274,19 @@ paths:
           $ref: '#/components/responses/503'
     patch:
       operationId: UsersIDRolesPatch
-      description: The HTTP request PATCH /users/{ID}/roles is used to assign a role to a user.
+      description: >-
+        The HTTP request PATCH /users/{ID}/roles is used to assign/remove
+        a role to/from a user.
+        These role operations are sent to an ory/keto service.
       requestBody:
         required: true
         content:
            application/json:
               schema:
-                type: object
-                properties:
-                  roleOperations:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        roleId:
-                          type: string
-                        action:
-                          type: string
-                          enum:
-                            - insert
-                            - delete
+                $ref: '#/components/schemas/UsersIDRolesPatchRequest'
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/responses/200'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -480,6 +416,114 @@ components:
         The `Content-Type` header indicates the specific version of the API used
         to send the payload body.
   schemas:
+    User:
+      title: User
+      type: object
+      description: >-
+        A trimmed data model of a WSO2 user.
+      properties:
+        id:
+          description: An WSO2 ID.
+          type: string
+        username:
+          description: WSO2 username.
+          type: string
+        name:
+          description: WSO2 name object.
+          type: object
+          properties:
+            givenName:
+              type: string
+            familyName:
+              type: string
+        emails:
+          type: array
+          items:
+            type: string
+    UsersGetResponse:
+      title: UsersGetResponse
+      type: object
+      description: >-
+        A list of users.
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    UsersIDGetResponse:
+      title: UsersIDGetResponse
+      type: object
+      description: >-
+        A user of a specified ID.
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+    ParticipantsGetResponse:
+      title: ParticipantsGetResponse
+      type: object
+      description: List of assignable participant ids.
+      properties:
+        participants:
+          type: array
+          items:
+            type: string
+    RolesGetResponse:
+      title: RolesGetResponse
+      type: object
+      description: List of assignable role ids.
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+    UsersIDParticipantsGetResponse:
+      title: UsersIDParticipantsGetResponse
+      type: object
+      description: List of participants ids that a user is a member of.
+      properties:
+        participants:
+          type: array
+          items:
+            type: string
+    UsersIDRolesGetResponse:
+      title: UsersIDRolesGetResponse
+      type: object
+      description: List of roles ids that a user is a member of.
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+    UsersIDParticipantsPatchRequest:
+      type: object
+      properties:
+        participantOperations:
+          type: array
+          items:
+            type: object
+            properties:
+              participantId:
+                type: string
+              action:
+                type: string
+                enum:
+                  - insert
+                  - delete
+    UsersIDRolesPatchRequest:
+      type: object
+      properties:
+        roleOperations:
+          type: array
+          items:
+            type: object
+            properties:
+              roleId:
+                type: string
+              action:
+                type: string
+                enum:
+                  - insert
+                  - delete
     ErrorCode:
       title: ErrorCode
       type: string
