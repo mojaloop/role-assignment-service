@@ -1,4 +1,11 @@
 # Changelog: [mojaloop/role-assignment-service](https://github.com/mojaloop/role-assignment-service)
+### [0.0.4](https://github.com/mojaloop/role-assignment-service/compare/v0.0.3...v0.0.4) (2021-09-28)
+
+
+### Maintenance
+
+* update link ([#5](https://github.com/mojaloop/role-assignment-service/issues/5)) ([5c06fb3](https://github.com/mojaloop/role-assignment-service/commit/5c06fb3b9d19f40d893ab582c3aad95eca76c529))
+
 ### [0.0.3](https://github.com/mojaloop/role-assignment-service/compare/v0.0.2...v0.0.3) (2021-09-28)
 
 
