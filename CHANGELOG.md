@@ -1,4 +1,11 @@
 # Changelog: [mojaloop/role-assignment-service](https://github.com/mojaloop/role-assignment-service)
+### [0.0.5](https://github.com/mojaloop/role-assignment-service/compare/v0.0.4...v0.0.5) (2021-10-05)
+
+
+### Features
+
+* add cors whitelist ([#6](https://github.com/mojaloop/role-assignment-service/issues/6)) ([63b09b4](https://github.com/mojaloop/role-assignment-service/commit/63b09b4f112aaf98e31580e43d6eb96fd1a9400d))
+
 ### [0.0.4](https://github.com/mojaloop/role-assignment-service/compare/v0.0.3...v0.0.4) (2021-09-28)
 
 
