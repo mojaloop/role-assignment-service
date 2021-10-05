@@ -44,6 +44,9 @@ export default async function create (config: ServiceConfig): Promise<Server> {
       validate: {
         options: validateRoutes(),
         failAction: onValidateFail
+      },
+      cors: {
+        origin: config.CORS_WHITELIST
       }
     }
   })

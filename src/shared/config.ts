@@ -74,6 +74,7 @@ export interface ServiceConfig {
     };
   };
   ROLES_LIST: string[];
+  CORS_WHITELIST: string[];
 }
 
 const RC = parse(rc('ROLE_ASSIGNMENT_SERVICE', Config)) as ServiceConfig
