@@ -83,7 +83,8 @@ describe('cli', (): void => {
       CORS_WHITELIST: [
         'http://localhost:3010',
         'http://localhost:3012'
-      ]
+      ],
+      ALLOW_CREDENTIALS: false
     })
 
     expect(server.run).toHaveBeenCalledWith(expectedConfig)
@@ -138,7 +139,8 @@ describe('cli', (): void => {
       CORS_WHITELIST: [
         'http://localhost:3010',
         'http://localhost:3012'
-      ]
+      ],
+      ALLOW_CREDENTIALS: false
     })
 
     expect(server.run).toHaveBeenCalledWith(expectedConfig)

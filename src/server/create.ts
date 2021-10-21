@@ -46,7 +46,10 @@ export default async function create (config: ServiceConfig): Promise<Server> {
         failAction: onValidateFail
       },
       cors: {
-        origin: config.CORS_WHITELIST
+        origin: config.CORS_WHITELIST,
+        // The role API may not receive the kratos cookie but this allows
+        // for testing the api directly from the frontend
+        credentials: config.ALLOW_CREDENTIALS
       }
     }
   })
