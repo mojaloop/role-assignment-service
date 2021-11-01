@@ -13,12 +13,11 @@ RUN npm ci
 
 # check in .dockerignore what is skipped during copy
 COPY . .
-CMD npm rebuild
 
 # cleanup
 RUN apk del build-dependencies
 
-FROM node:lts-alpine
+FROM node:14.18.1-alpine
 WORKDIR /opt/role-assignment-service
 
 # Create empty log file & link stdout to the application log file
