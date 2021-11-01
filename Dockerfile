@@ -1,4 +1,4 @@
-FROM node:14.18.1-alpine as builder
+FROM node:14.3.0-alpine as builder
 USER root
 
 WORKDIR /opt/role-assignment-service
