@@ -1,4 +1,4 @@
-FROM node:14.3.0-alpine as builder
+FROM node:14.18.1-alpine as builder
 USER root
 
 WORKDIR /opt/role-assignment-service
@@ -13,6 +13,7 @@ RUN npm ci
 
 # check in .dockerignore what is skipped during copy
 COPY . .
+CMD npm rebuild
 
 # cleanup
 RUN apk del build-dependencies
