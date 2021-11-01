@@ -81,9 +81,13 @@ describe('cli', (): void => {
         'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
       ],
       CORS_WHITELIST: [
+        'http://localhost:3000',
         'http://localhost:3010',
-        'http://localhost:3012'
-      ]
+        'http://localhost:3012',
+        'http://localhost:8080',
+        'http://localhost:8081'
+      ],
+      ALLOW_CREDENTIALS: false
     })
 
     expect(server.run).toHaveBeenCalledWith(expectedConfig)
@@ -136,9 +140,13 @@ describe('cli', (): void => {
         'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
       ],
       CORS_WHITELIST: [
+        'http://localhost:3000',
         'http://localhost:3010',
-        'http://localhost:3012'
-      ]
+        'http://localhost:3012',
+        'http://localhost:8080',
+        'http://localhost:8081'
+      ],
+      ALLOW_CREDENTIALS: false
     })
 
     expect(server.run).toHaveBeenCalledWith(expectedConfig)
