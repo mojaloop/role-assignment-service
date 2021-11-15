@@ -139,6 +139,30 @@
       "decision": "ignore",
       "madeAt": 1634849626602,
       "expiresAt": 1637441614838
+    },
+    "1004784|hapi-openapi>swagger-parser>@apidevtools/swagger-parser>z-schema>validator": {
+      "decision": "fix",
+      "madeAt": 1636993820509
+    },
+    "1004784|hapi-swagger>swagger-parser>z-schema>validator": {
+      "decision": "ignore",
+      "madeAt": 1636993831308,
+      "expiresAt": 1639585788412
+    },
+    "1004809|@mojaloop/central-services-shared>widdershins>openapi-sampler>json-pointer": {
+      "decision": "ignore",
+      "madeAt": 1636993832790,
+      "expiresAt": 1639585788412
+    },
+    "1004812|@mojaloop/central-services-shared>widdershins>swagger2openapi>better-ajv-errors>jsonpointer": {
+      "decision": "ignore",
+      "madeAt": 1636993834007,
+      "expiresAt": 1639585788412
+    },
+    "1004812|@mojaloop/central-services-shared>widdershins>swagger2openapi>oas-validator>better-ajv-errors>jsonpointer": {
+      "decision": "ignore",
+      "madeAt": 1636993834007,
+      "expiresAt": 1639585788412
     }
   },
   "rules": {},

@@ -1,9 +1,9 @@
-FROM node:lts-alpine as builder
+FROM node:14.18.1-alpine as builder
 USER root
 
 WORKDIR /opt/role-assignment-service
 
-RUN apk add --no-cache -t build-dependencies git make gcc g++ python libtool autoconf automake \
+RUN apk add --no-cache -t build-dependencies git make gcc g++ python3 libtool autoconf automake \
     && cd $(npm root -g)/npm \
     && npm config set unsafe-perm true \
     && npm install -g node-gyp
@@ -17,7 +17,7 @@ COPY . .
 # cleanup
 RUN apk del build-dependencies
 
-FROM node:lts-alpine
+FROM node:14.18.1-alpine
 WORKDIR /opt/role-assignment-service
 
 # Create empty log file & link stdout to the application log file
