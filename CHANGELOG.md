@@ -1,4 +1,16 @@
 # Changelog: [mojaloop/role-assignment-service](https://github.com/mojaloop/role-assignment-service)
+### [0.0.6](https://github.com/mojaloop/role-assignment-service/compare/v0.0.5...v0.0.6) (2021-11-15)
+
+
+### Features
+
+* add config for credentialed requests ([#7](https://github.com/mojaloop/role-assignment-service/issues/7)) ([cfeed39](https://github.com/mojaloop/role-assignment-service/commit/cfeed39693eb0cd91124cf0cf831c5732f026142))
+
+
+### Maintenance
+
+* specify docker builder image ([#8](https://github.com/mojaloop/role-assignment-service/issues/8)) ([9a2a650](https://github.com/mojaloop/role-assignment-service/commit/9a2a65010e0151d63c1e8c0e35298fdc3c838490))
+
 ### [0.0.5](https://github.com/mojaloop/role-assignment-service/compare/v0.0.4...v0.0.5) (2021-10-05)
 
 
