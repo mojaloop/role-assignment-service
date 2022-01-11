@@ -101,15 +101,15 @@ const patch = async (_context: unknown, request: Request, h: StateResponseToolki
     })
 
     // Call the operator API
-    const udpatePayload = {
+    const updatePayload = {
       username: userId,
       roles: Array.from(userRoles.values())
     }
     try {
-      await axios.post(Config.ROLE_OPERATOR_SERVICE_URL + '/assignment/user-role', udpatePayload)
+      await axios.post(Config.ROLE_OPERATOR_SERVICE_URL + '/assignment/user-role', updatePayload)
     } catch (err) {
-      if ((<AxiosError>err).isAxiosError && (<AxiosError>err).response?.data?.errors) {
-        throw new Error((<AxiosError>err).response?.data?.errors.join(', '))
+      if ((<AxiosError>err).isAxiosError && (<AxiosError>err).response?.data.errors) {
+        throw new Error((<AxiosError>err).response?.data.errors.join(', '))
       } else {
         throw (err)
       }
