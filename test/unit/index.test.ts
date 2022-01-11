@@ -258,6 +258,7 @@ describe('index', (): void => {
 
       it('PATCH /users/{ID}/roles', async (): Promise<void> => {
         axios.request = jest.fn()
+        axios.post = jest.fn()
 
         const request = {
           method: 'PATCH',
@@ -278,31 +279,13 @@ describe('index', (): void => {
 
         const response = await server.inject(request)
         expect(response.statusCode).toBe(200)
-        expect(axios.request).toHaveBeenCalledWith({
-          headers: expect.any(Object),
-          method: 'PATCH',
-          url: 'http://keto:4467/relation-tuples',
-          data: JSON.stringify([
-            {
-              action: 'insert',
-              relation_tuple: {
-                namespace: 'role',
-                object: 'admin',
-                relation: 'member',
-                subject: 'myTestUserID'
-              }
-            },
-            {
-              action: 'delete',
-              relation_tuple: {
-                namespace: 'role',
-                object: 'user',
-                relation: 'member',
-                subject: 'myTestUserID'
-              }
-            }
-          ])
-        })
+        expect(axios.post).toHaveBeenCalledWith(
+          'http://moja-role-operator:3001/assignment/user-role',
+          {
+            roles: ['admin'],
+            username: 'myTestUserID'
+          }
+        )
       })
     })
 

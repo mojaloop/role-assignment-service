@@ -128,7 +128,10 @@ describe('users id roles handler', () => {
   describe('PATCH /users/{ID}/roles', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(),
+      getKetoReadApi: jest.fn(() => new keto.ReadApi(
+        undefined,
+        Config.ORY_KETO_READ_SERVICE_URL
+      )),
       getKetoWriteApi: jest.fn(() => new keto.WriteApi(
         undefined,
         Config.ORY_KETO_WRITE_SERVICE_URL
@@ -141,7 +144,8 @@ describe('users id roles handler', () => {
     }
 
     it('handles a successful request', async () => {
-      axios.request = jest.fn().mockResolvedValueOnce(null)
+      axios.post = jest.fn().mockResolvedValueOnce(null)
+      axios.request = jest.fn().mockResolvedValueOnce(mockKetoUserRolesResponse)
 
       const request = {
         method: 'PATCH',
@@ -170,31 +174,13 @@ describe('users id roles handler', () => {
         toolkit as unknown as StateResponseToolkit)
 
       expect(response.statusCode).toBe(200)
-      expect(axios.request).toHaveBeenCalledWith({
-        headers: expect.any(Object),
-        method: 'PATCH',
-        url: 'http://keto:4467/relation-tuples',
-        data: JSON.stringify([
-          {
-            action: 'insert',
-            relation_tuple: {
-              namespace: 'role',
-              object: 'admin',
-              relation: 'member',
-              subject: 'myTestUserID'
-            }
-          },
-          {
-            action: 'delete',
-            relation_tuple: {
-              namespace: 'role',
-              object: 'user',
-              relation: 'member',
-              subject: 'myTestUserID'
-            }
-          }
-        ])
-      })
+      expect(axios.post).toHaveBeenCalledWith(
+        'http://moja-role-operator:3001/assignment/user-role',
+        {
+          roles: ['admin'],
+          username: 'myTestUserID'
+        }
+      )
     })
 
     it('handles errors', async () => {

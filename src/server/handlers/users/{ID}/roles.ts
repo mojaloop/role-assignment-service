@@ -86,7 +86,7 @@ const patch = async (_context: unknown, request: Request, h: StateResponseToolki
       'member',
       userId
     )
-    const rolesIdList = response.data.relation_tuples?.map(({ object }) => object)
+    const rolesIdList = response?.data.relation_tuples?.map(({ object }) => object)
     const userRoles = new Set(rolesIdList)
 
     // Calculate the resultant set of user role assignments
