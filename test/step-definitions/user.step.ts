@@ -87,6 +87,7 @@ defineFeature(feature, (test): void => {
     })
 
     when('I make a PATCH User roles request', async (): Promise<ServerInjectResponse> => {
+      axios.post = jest.fn().mockResolvedValueOnce(null)
       axios.request = jest.fn().mockResolvedValueOnce(null)
       const request = {
         method: 'PATCH',
@@ -109,31 +110,13 @@ defineFeature(feature, (test): void => {
     })
 
     then('The status should be \'OK\'', (): void => {
-      expect(axios.request).toBeCalledWith({
-        headers: expect.any(Object),
-        method: 'PATCH',
-        url: 'http://keto:4467/relation-tuples',
-        data: JSON.stringify([
-          {
-            action: 'insert',
-            relation_tuple: {
-              namespace: 'role',
-              object: 'admin',
-              relation: 'member',
-              subject: 'myTestUserID'
-            }
-          },
-          {
-            action: 'delete',
-            relation_tuple: {
-              namespace: 'role',
-              object: 'user',
-              relation: 'member',
-              subject: 'myTestUserID'
-            }
-          }
-        ])
-      })
+      expect(axios.post).toHaveBeenCalledWith(
+        'http://moja-role-operator:3001/assignment/user-role',
+        {
+          roles: ['admin'],
+          username: 'myTestUserID'
+        }
+      )
       expect(response.statusCode).toBe(200)
     })
   })
