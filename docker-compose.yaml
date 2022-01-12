@@ -167,3 +167,17 @@ services:
       retries: 10
       start_period: 40s
       interval: 30s
+
+  moja-role-operator:
+    # TODO: Change the following temporary image to standard release version
+    image: vijayg10/security-role-perm-operator-svc:v2.0.0
+    container_name: moja-role-operator
+    environment:
+      - LOG_LEVEL=info
+      - ROLE_PERM_OPERATOR_ORY_KETO_READ_SERVICE_URL=http://keto:4466
+      - ROLE_PERM_OPERATOR_ORY_KETO_WRITE_SERVICE_URL=http://keto:4467
+    networks:
+      - mojaloop-net
+    depends_on:
+      - keto
+    user: root
