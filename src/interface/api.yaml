@@ -450,6 +450,7 @@ components:
       properties:
         users:
           type: array
+          required: true
           items:
             $ref: '#/components/schemas/User'
     UsersIDGetResponse:
@@ -459,6 +460,7 @@ components:
         A user of a specified ID.
       properties:
         user:
+          required: true
           $ref: '#/components/schemas/User'
     ParticipantsGetResponse:
       title: ParticipantsGetResponse
@@ -467,6 +469,7 @@ components:
       properties:
         participants:
           type: array
+          required: true
           items:
             type: string
     RolesGetResponse:
@@ -476,6 +479,7 @@ components:
       properties:
         roles:
           type: array
+          required: true
           items:
             type: string
     UsersIDParticipantsGetResponse:
@@ -485,6 +489,7 @@ components:
       properties:
         participants:
           type: array
+          required: true
           items:
             type: string
     UsersIDRolesGetResponse:
@@ -494,6 +499,7 @@ components:
       properties:
         roles:
           type: array
+          required: true
           items:
             type: string
     UsersIDParticipantsPatchRequest:
@@ -502,12 +508,15 @@ components:
         participantOperations:
           type: array
           items:
+            required: true
             type: object
             properties:
               participantId:
                 type: string
+                required: true
               action:
                 type: string
+                required: true
                 enum:
                   - insert
                   - delete
@@ -517,12 +526,15 @@ components:
         roleOperations:
           type: array
           items:
+            required: true
             type: object
             properties:
               roleId:
                 type: string
+                required: true
               action:
                 type: string
+                required: true
                 enum:
                   - insert
                   - delete
