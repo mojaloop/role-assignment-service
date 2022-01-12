@@ -421,15 +421,16 @@ components:
       type: object
       description: >-
         A trimmed data model of a WSO2 user.
+      required:
+        - id
+        - username
       properties:
         id:
           description: An WSO2 ID.
           type: string
-          required: true
         username:
           description: WSO2 username.
           type: string
-          required: true
         name:
           description: WSO2 name object.
           type: object
@@ -447,10 +448,11 @@ components:
       type: object
       description: >-
         A list of users.
+      required:
+      - users
       properties:
         users:
           type: array
-          required: true
           items:
             $ref: '#/components/schemas/User'
     UsersIDGetResponse:
@@ -458,83 +460,92 @@ components:
       type: object
       description: >-
         A user of a specified ID.
+      required:
+      - user
       properties:
         user:
-          required: true
           $ref: '#/components/schemas/User'
     ParticipantsGetResponse:
       title: ParticipantsGetResponse
       type: object
       description: List of assignable participant ids.
+      required:
+      - participants
       properties:
         participants:
           type: array
-          required: true
           items:
             type: string
     RolesGetResponse:
       title: RolesGetResponse
       type: object
       description: List of assignable role ids.
+      required:
+      - roles
       properties:
         roles:
           type: array
-          required: true
           items:
             type: string
     UsersIDParticipantsGetResponse:
       title: UsersIDParticipantsGetResponse
       type: object
       description: List of participants ids that a user is a member of.
+      required:
+      - participants
       properties:
         participants:
           type: array
-          required: true
           items:
             type: string
     UsersIDRolesGetResponse:
       title: UsersIDRolesGetResponse
       type: object
       description: List of roles ids that a user is a member of.
+      required:
+      - roles
       properties:
         roles:
           type: array
-          required: true
           items:
             type: string
     UsersIDParticipantsPatchRequest:
       type: object
+      required:
+      - participantOperations
       properties:
         participantOperations:
           type: array
-          required: true
           items:
             type: object
+            required:
+            - participantId
+            - action
             properties:
               participantId:
                 type: string
-                required: true
               action:
                 type: string
-                required: true
                 enum:
                   - insert
                   - delete
     UsersIDRolesPatchRequest:
       type: object
+      required:
+      - roleOperations
       properties:
         roleOperations:
           type: array
-          required: true
           items:
             type: object
+            required:
+            - roleId
+            - action
             properties:
               roleId:
                 type: string
-                required: true
               action:
                 type: string
-                required: true
                 enum:
                   - insert
                   - delete
