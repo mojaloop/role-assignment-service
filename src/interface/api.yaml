@@ -425,9 +425,11 @@ components:
         id:
           description: An WSO2 ID.
           type: string
+          required: true
         username:
           description: WSO2 username.
           type: string
+          required: true
         name:
           description: WSO2 name object.
           type: object
