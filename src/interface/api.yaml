@@ -507,8 +507,8 @@ components:
       properties:
         participantOperations:
           type: array
+          required: true
           items:
-            required: true
             type: object
             properties:
               participantId:
@@ -525,8 +525,8 @@ components:
       properties:
         roleOperations:
           type: array
+          required: true
           items:
-            required: true
             type: object
             properties:
               roleId:
