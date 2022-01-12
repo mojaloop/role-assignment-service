@@ -172,6 +172,8 @@ services:
     # TODO: Change the following temporary image to standard release version
     image: vijayg10/security-role-perm-operator-svc:v2.0.0
     container_name: moja-role-operator
+    ports:
+      - "23001:3001"
     environment:
       - LOG_LEVEL=info
       - ROLE_PERM_OPERATOR_ORY_KETO_READ_SERVICE_URL=http://keto:4466
@@ -181,3 +183,9 @@ services:
     depends_on:
       - keto
     user: root
+    healthcheck:
+      test: wget -q http://localhost:23001/health -O /dev/null || exit 1
+      timeout: 20s
+      retries: 30
+      interval: 30s
+      start_period: 30s

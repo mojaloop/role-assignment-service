@@ -14,7 +14,8 @@ const expectedContainers = [
   'kafka',
   'mysql',
   'identity-server',
-  'mysql-is'
+  'mysql-is',
+  'moja-role-operator'
 ]
 
 let retries = 40
