@@ -421,6 +421,9 @@ components:
       type: object
       description: >-
         A trimmed data model of a WSO2 user.
+      required:
+        - id
+        - username
       properties:
         id:
           description: An WSO2 ID.
@@ -445,6 +448,8 @@ components:
       type: object
       description: >-
         A list of users.
+      required:
+      - users
       properties:
         users:
           type: array
@@ -455,6 +460,8 @@ components:
       type: object
       description: >-
         A user of a specified ID.
+      required:
+      - user
       properties:
         user:
           $ref: '#/components/schemas/User'
@@ -462,6 +469,8 @@ components:
       title: ParticipantsGetResponse
       type: object
       description: List of assignable participant ids.
+      required:
+      - participants
       properties:
         participants:
           type: array
@@ -471,6 +480,8 @@ components:
       title: RolesGetResponse
       type: object
       description: List of assignable role ids.
+      required:
+      - roles
       properties:
         roles:
           type: array
@@ -480,6 +491,8 @@ components:
       title: UsersIDParticipantsGetResponse
       type: object
       description: List of participants ids that a user is a member of.
+      required:
+      - participants
       properties:
         participants:
           type: array
@@ -489,6 +502,8 @@ components:
       title: UsersIDRolesGetResponse
       type: object
       description: List of roles ids that a user is a member of.
+      required:
+      - roles
       properties:
         roles:
           type: array
@@ -496,11 +511,16 @@ components:
             type: string
     UsersIDParticipantsPatchRequest:
       type: object
+      required:
+      - participantOperations
       properties:
         participantOperations:
           type: array
           items:
             type: object
+            required:
+            - participantId
+            - action
             properties:
               participantId:
                 type: string
@@ -511,11 +531,16 @@ components:
                   - delete
     UsersIDRolesPatchRequest:
       type: object
+      required:
+      - roleOperations
       properties:
         roleOperations:
           type: array
           items:
             type: object
+            required:
+            - roleId
+            - action
             properties:
               roleId:
                 type: string
