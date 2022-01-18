@@ -184,7 +184,7 @@ services:
       - keto
     user: root
     healthcheck:
-      test: wget -q http://localhost:23001/health -O /dev/null || exit 1
+      test: curl -f -s http://localhost:3001/health > /dev/null || exit 1
       timeout: 20s
       retries: 30
       interval: 30s
