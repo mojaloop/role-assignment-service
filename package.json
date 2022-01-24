@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/role-assignment-service",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -104,7 +104,7 @@
     "@mojaloop/central-services-error-handling": "11.3.0",
     "@mojaloop/central-services-logger": "10.6.1",
     "@mojaloop/central-services-metrics": "11.0.0",
-    "@mojaloop/central-services-shared": "^13.4.1",
+    "@mojaloop/central-services-shared": "^15.2.0",
     "@mojaloop/event-sdk": "^10.7.1",
     "@ory/keto-client": "^0.6.0-alpha.6",
     "@types/btoa": "^1.2.3",

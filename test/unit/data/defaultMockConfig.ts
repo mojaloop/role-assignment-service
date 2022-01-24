@@ -35,6 +35,7 @@ const defaultMockConfig: ServiceConfig = {
     generateTimeout: 5000
   },
   CENTRAL_SERVICE_ADMIN_URL: 'central-ledger',
+  ROLE_OPERATOR_SERVICE_URL: 'http://moja-role-operator:3001',
   ORY_KETO_READ_SERVICE_URL: 'http://keto:4466',
   ORY_KETO_WRITE_SERVICE_URL: 'http://keto:4467',
   WSO2IS_USER_LIST_URL: 'https://identity-server:9443/scim2/Users',

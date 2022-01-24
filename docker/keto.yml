@@ -8,6 +8,8 @@ namespaces:
     name: participant
   - id: 1
     name: role
+  - id: 2
+    name: permission
 
 dsn: memory
 

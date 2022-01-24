@@ -51,6 +51,7 @@ export interface ServiceConfig {
     generateTimeout: number;
   };
   CENTRAL_SERVICE_ADMIN_URL: string;
+  ROLE_OPERATOR_SERVICE_URL: string;
   ORY_KETO_READ_SERVICE_URL: string;
   ORY_KETO_WRITE_SERVICE_URL: string;
   WSO2IS_USER_LIST_URL: string;

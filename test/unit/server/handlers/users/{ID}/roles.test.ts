@@ -34,7 +34,7 @@ import Logger from '@mojaloop/central-services-logger'
 import { StateResponseToolkit } from '~/server/plugins/state'
 import UsersIdRolesHandler from '~/server/handlers/users/{ID}/roles'
 import { logger } from '~/shared/logger'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import * as keto from '@ory/keto-client'
 import Config from '~/shared/config'
 
@@ -128,7 +128,10 @@ describe('users id roles handler', () => {
   describe('PATCH /users/{ID}/roles', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(),
+      getKetoReadApi: jest.fn(() => new keto.ReadApi(
+        undefined,
+        Config.ORY_KETO_READ_SERVICE_URL
+      )),
       getKetoWriteApi: jest.fn(() => new keto.WriteApi(
         undefined,
         Config.ORY_KETO_WRITE_SERVICE_URL
@@ -141,7 +144,8 @@ describe('users id roles handler', () => {
     }
 
     it('handles a successful request', async () => {
-      axios.request = jest.fn().mockResolvedValueOnce(null)
+      axios.post = jest.fn().mockResolvedValueOnce(null)
+      axios.request = jest.fn().mockResolvedValueOnce(mockKetoUserRolesResponse)
 
       const request = {
         method: 'PATCH',
@@ -170,34 +174,16 @@ describe('users id roles handler', () => {
         toolkit as unknown as StateResponseToolkit)
 
       expect(response.statusCode).toBe(200)
-      expect(axios.request).toHaveBeenCalledWith({
-        headers: expect.any(Object),
-        method: 'PATCH',
-        url: 'http://keto:4467/relation-tuples',
-        data: JSON.stringify([
-          {
-            action: 'insert',
-            relation_tuple: {
-              namespace: 'role',
-              object: 'admin',
-              relation: 'member',
-              subject: 'myTestUserID'
-            }
-          },
-          {
-            action: 'delete',
-            relation_tuple: {
-              namespace: 'role',
-              object: 'user',
-              relation: 'member',
-              subject: 'myTestUserID'
-            }
-          }
-        ])
-      })
+      expect(axios.post).toHaveBeenCalledWith(
+        'http://moja-role-operator:3001/assignment/user-role',
+        {
+          roles: ['admin'],
+          username: 'myTestUserID'
+        }
+      )
     })
 
-    it('handles errors', async () => {
+    it('handles keto get errors', async () => {
       axios.request = jest.fn().mockImplementation(() => {
         throw new Error()
       })
@@ -228,6 +214,162 @@ describe('users id roles handler', () => {
         request as unknown as Request,
         toolkit as unknown as StateResponseToolkit
       )
+      expect(response.statusCode).toBe(500)
+    })
+
+    it('handles role operator post errors1', async () => {
+      axios.request = jest.fn().mockResolvedValueOnce(mockKetoUserRolesResponse)
+      axios.post = jest.fn().mockImplementation(() => {
+        throw new Error()
+      })
+
+      const request = {
+        method: 'PATCH',
+        url: '/users/myTestUserID/roles',
+        headers: {},
+        params: {
+          ID: 'myTestUserID'
+        },
+        payload: {
+          roleOperations: [
+            {
+              action: 'insert',
+              roleId: 'admin'
+            },
+            {
+              action: 'delete',
+              roleId: 'user'
+            }
+          ]
+        }
+      }
+
+      const response = await UsersIdRolesHandler.patch(
+        null,
+        request as unknown as Request,
+        toolkit as unknown as StateResponseToolkit)
+      expect(response.statusCode).toBe(500)
+    })
+
+    it('handles role operator post errors2', async () => {
+      axios.request = jest.fn().mockResolvedValueOnce(mockKetoUserRolesResponse)
+      axios.post = jest.fn().mockImplementation(() => {
+        const errorObj = <AxiosError>(new Error())
+        errorObj.isAxiosError = true
+        errorObj.response = {
+          config: {},
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {},
+          data: { errors: ['asdf'] }
+        }
+        throw errorObj
+      })
+
+      const request = {
+        method: 'PATCH',
+        url: '/users/myTestUserID/roles',
+        headers: {},
+        params: {
+          ID: 'myTestUserID'
+        },
+        payload: {
+          roleOperations: [
+            {
+              action: 'insert',
+              roleId: 'admin'
+            },
+            {
+              action: 'delete',
+              roleId: 'user'
+            }
+          ]
+        }
+      }
+
+      const response = await UsersIdRolesHandler.patch(
+        null,
+        request as unknown as Request,
+        toolkit as unknown as StateResponseToolkit)
+      expect(response.statusCode).toBe(500)
+    })
+
+    it('handles role operator post errors3', async () => {
+      axios.request = jest.fn().mockResolvedValueOnce(mockKetoUserRolesResponse)
+      axios.post = jest.fn().mockImplementation(() => {
+        const errorObj = <AxiosError>(new Error())
+        errorObj.isAxiosError = true
+        errorObj.response = {
+          config: {},
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {},
+          data: { errors: ['asdf'] }
+        }
+        throw errorObj
+      })
+
+      const request = {
+        method: 'PATCH',
+        url: '/users/myTestUserID/roles',
+        headers: {},
+        params: {
+          ID: 'myTestUserID'
+        },
+        payload: {
+          roleOperations: [
+            {
+              action: 'insert',
+              roleId: 'admin'
+            },
+            {
+              action: 'delete',
+              roleId: 'user'
+            }
+          ]
+        }
+      }
+
+      const response = await UsersIdRolesHandler.patch(
+        null,
+        request as unknown as Request,
+        toolkit as unknown as StateResponseToolkit)
+      expect(response.statusCode).toBe(500)
+    })
+
+    it('handles role operator post errors3', async () => {
+      axios.request = jest.fn().mockResolvedValueOnce(mockKetoUserRolesResponse)
+      axios.post = jest.fn().mockImplementation(() => {
+        const errorObj = <AxiosError>(new Error())
+        errorObj.isAxiosError = true
+        throw errorObj
+      })
+
+      const request = {
+        method: 'PATCH',
+        url: '/users/myTestUserID/roles',
+        headers: {},
+        params: {
+          ID: 'myTestUserID'
+        },
+        payload: {
+          roleOperations: [
+            {
+              action: 'insert',
+              roleId: 'admin'
+            },
+            {
+              action: 'delete',
+              roleId: 'user'
+            }
+          ]
+        }
+      }
+
+      const response = await UsersIdRolesHandler.patch(
+        null,
+        request as unknown as Request,
+        toolkit as unknown as StateResponseToolkit)
       expect(response.statusCode).toBe(500)
     })
   })
