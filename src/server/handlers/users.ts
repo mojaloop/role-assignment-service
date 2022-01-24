@@ -58,7 +58,10 @@ const get = async (_context: unknown, _request: Request, h: StateResponseToolkit
   try {
     const basicAuth = 'Basic ' + btoa(`${Config.WSO2_USER}:${Config.WSO2_PASSWORD}`)
     const response = await axios.get(Config.WSO2IS_USER_LIST_URL, {
-      headers: { Authorization: basicAuth },
+      headers: {
+        Accept: 'application/json',
+        Authorization: basicAuth
+      },
       // WARNING!!!: this bypasses ssl certification. proceeding just for
       //             development purposes
       // TODO: figure out wso2 ssl setup
