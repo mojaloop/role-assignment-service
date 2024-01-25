@@ -326,29 +326,22 @@ jobs:
     steps:
       - run:
           name: Install general dependencies
-          command: *defaults_docker_Dependencies
-      - run:
-          name: Install AWS CLI dependencies
-          command: *defaults_awsCliDependencies
+          command: *defaults_machine_Dependencies
       - checkout
       - run:
           <<: *defaults_configure_nvm
       - run:
           <<: *defaults_display_versions
       - restore_cache:
+          name: Restore npm Package Cache
           key: dependency-cache-{{ .Environment.CIRCLE_SHA1 }}
       - run:
-          name: Set up NVM
+          name: Update NPM install
           command: |
-            echo ${NVM_DIR}
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm install v14.17.6
-            nvm alias default v14.17.6
-      - run:
-          name: install modules
-          command: |
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            node --version
+            # Set Node version to default (Note: this is needed on Ubuntu)
+            nvm use default
+
+            # Install dependencies
             npm ci
       - run:
           name: Create dir for test results
