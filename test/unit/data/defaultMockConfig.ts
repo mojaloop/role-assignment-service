@@ -42,6 +42,7 @@ const defaultMockConfig: ServiceConfig = {
   KEYCLOAK_USER: 'admin',
   KEYCLOAK_PASSWORD: 'admin',
   KEYCLOAK_REALM: 'master',
+  KEYCLOAK_REFRESH_INTERVAL: 58000,
   ERROR_HANDLING: {
     includeCauseExtension: true,
     truncateExtensions: true

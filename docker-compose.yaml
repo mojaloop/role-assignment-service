@@ -16,6 +16,9 @@ services:
       - "3008:3008"
     networks:
       - mojaloop-net
+    depends_on:
+      keycloak:
+        condition: service_healthy
     healthcheck:
       test: wget -q http://172.17.0.1:3008/health -O /dev/null || exit 1
       timeout: 20s
@@ -148,7 +151,10 @@ services:
     networks:
       - mojaloop-net
     depends_on:
-      - keto
+      role-assignment-service:
+        condition: service_healthy
+      keto:
+        condition: service_started
     user: root
     healthcheck:
       test: curl -f -s http://localhost:3001/health > /dev/null || exit 1
@@ -180,6 +186,11 @@ services:
       - KC_HEALTH_ENABLED=true
     networks:
       - mojaloop-net
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mysql-keycloak:
     image: mysql:5.7.41

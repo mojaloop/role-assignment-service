@@ -36,11 +36,8 @@ describe('GET /users', (): void => {
     users: [{
       emails: expect.any(Array),
       id: expect.any(String),
-      name: {
-        familyName: 'admin',
-        givenName: 'admin'
-      },
-      username: expect.any(String)
+      name: {},
+      username: 'admin'
     }]
   }
 
@@ -163,22 +160,16 @@ describe('GET /users/{ID}', (): void => {
     users: [{
       emails: expect.any(Array),
       id: expect.any(String),
-      name: {
-        familyName: 'admin',
-        givenName: 'admin'
-      },
-      username: expect.any(String)
+      name: {},
+      username: 'admin'
     }]
   }
 
   const expectedUserResp = {
     user: {
       id: expect.any(String),
-      name: {
-        familyName: 'admin',
-        givenName: 'admin'
-      },
-      username: expect.any(String),
+      name: {},
+      username: 'admin',
       emails: expect.any(Array)
     }
   }

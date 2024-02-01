@@ -36,6 +36,7 @@ import { logger } from '~/shared/logger'
 import * as keto from '@ory/keto-client'
 import Config from '~/shared/config'
 import KcAdminClient from '@keycloak/keycloak-admin-client'
+import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth'
 
 export interface StateResponseToolkit extends ResponseToolkit {
   getLogger: () => SDKLogger.Logger
@@ -64,15 +65,16 @@ export const StatePlugin = {
         realmName: Config.KEYCLOAK_REALM
       }
     )
-
-    // Authorize with username / password
-    await kcAdminClient.auth({
+    const credentials: Credentials = {
       username: Config.KEYCLOAK_USER,
       password: Config.KEYCLOAK_PASSWORD,
       grantType: 'password',
       clientId: 'admin-cli'
-    })
+    }
+    // Authorize with username / password
+    await kcAdminClient.auth(credentials)
 
+    setInterval(() => kcAdminClient.auth(credentials), Config.KEYCLOAK_REFRESH_INTERVAL)
     logger.info('StatePlugin: plugin initializing')
 
     try {
