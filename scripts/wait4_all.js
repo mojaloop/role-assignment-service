@@ -13,7 +13,6 @@ const expectedContainers = [
   'central-ledger',
   'kafka',
   'mysql',
-  'identity-server',
   'mysql-is',
   'moja-role-operator'
 ]
