@@ -74,7 +74,10 @@ export const StatePlugin = {
     // Authorize with username / password
     await kcAdminClient.auth(credentials)
 
-    setInterval(() => kcAdminClient.auth(credentials), Config.KEYCLOAK_REFRESH_INTERVAL)
+    const kcRefreshInterval = setInterval(() => kcAdminClient.auth(credentials), Config.KEYCLOAK_REFRESH_INTERVAL)
+    server.events.on('stop', () => {
+      clearInterval(kcRefreshInterval)
+    })
     logger.info('StatePlugin: plugin initializing')
 
     try {

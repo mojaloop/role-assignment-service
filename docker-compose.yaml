@@ -137,8 +137,7 @@ services:
       interval: 30s
 
   moja-role-operator:
-    # TODO: Change the following temporary image to standard release version
-    image: vijayg10/security-role-perm-operator-svc:v2.0.0
+    image: mojaloop/security-role-perm-operator-svc:v2.0.0
     logging:
       driver: "none"
     container_name: moja-role-operator
