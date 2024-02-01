@@ -55,7 +55,7 @@ describe('StatePlugin', () => {
   })
 
   it('happy flow: should properly register', async () => {
-    await StatePlugin.register(ServerMock as unknown as Server)
+    await StatePlugin.register(ServerMock as unknown as Server, false)
 
     // check decoration
     expect(ServerMock.decorate)
@@ -76,8 +76,8 @@ describe('StatePlugin', () => {
     })
 
     const mockExit = mockProcessExit()
-    await StatePlugin.register(ServerMock as unknown as Server)
-    expect(mockExit).toBeCalledWith(1)
+    await StatePlugin.register(ServerMock as unknown as Server, false)
+    expect(mockExit).toHaveBeenCalledWith(1)
     mockExit.mockRestore()
   })
 })

@@ -49,8 +49,7 @@ export const StatePlugin = {
   version: '1.0.0',
   name: 'StatePlugin',
   once: true,
-
-  register: async (server: Server): Promise<void> => {
+  register: async (server: Server, refreshKcAuth: boolean): Promise<void> => {
     const oryKetoReadApi = new keto.ReadApi(
       undefined,
       Config.ORY_KETO_READ_SERVICE_URL
@@ -73,11 +72,12 @@ export const StatePlugin = {
     }
     // Authorize with username / password
     await kcAdminClient.auth(credentials)
-
-    const kcRefreshInterval = setInterval(() => kcAdminClient.auth(credentials), Config.KEYCLOAK_REFRESH_INTERVAL)
-    server.events.on('stop', () => {
-      clearInterval(kcRefreshInterval)
-    })
+    if (refreshKcAuth) {
+      const kcRefreshInterval = setInterval(() => kcAdminClient.auth(credentials), Config.KEYCLOAK_REFRESH_INTERVAL)
+      server.events.on('stop', () => {
+        clearInterval(kcRefreshInterval)
+      })
+    }
     logger.info('StatePlugin: plugin initializing')
 
     try {
