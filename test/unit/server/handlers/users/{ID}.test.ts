@@ -34,23 +34,29 @@ import Logger from '@mojaloop/central-services-logger'
 import { StateResponseToolkit } from '~/server/plugins/state'
 import UsersIdHandler from '~/server/handlers/users/{ID}'
 import { logger } from '~/shared/logger'
-import axios from 'axios'
 
-jest.mock('axios')
 const mockLoggerPush = jest.spyOn(Logger, 'push')
 const mockLoggerError = jest.spyOn(Logger, 'error')
 
 describe('users handler', () => {
+  let mockFindOne: jest.Mock = jest.fn()
   beforeEach((): void => {
     mockLoggerPush.mockReturnValue(null)
     mockLoggerError.mockReturnValue(null)
   })
 
   describe('GET /users/{ID}', () => {
+    const mockAuth: jest.Mock = jest.fn()
     const toolkit = {
       getLogger: jest.fn(() => logger),
       getKetoReadApi: jest.fn(),
       getKetoWriteApi: jest.fn(),
+      getKeycloakAdmin: jest.fn().mockImplementation(() => ({
+        auth: mockAuth,
+        users: {
+          findOne: mockFindOne
+        }
+      })),
       response: jest.fn(() => ({
         code: jest.fn((code: number) => ({
           statusCode: code
@@ -58,17 +64,24 @@ describe('users handler', () => {
       }))
     }
 
-    const mockWso2UserResponse = {
-      data: {
-        name: { givenName: 'user', familyName: 'name' },
-        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        userName: 'user',
-        emails: ['user@email.com']
-      }
+    const mockKeycloakUserResponse = {
+      firstName: 'user',
+      lastName: 'name',
+      id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+      username: 'user',
+      email: 'user@email.com',
+      createdTimestamp: 1706645601591,
+      enabled: true,
+      totp: false,
+      emailVerified: false,
+      disableableCredentialTypes: [],
+      requiredActions: [],
+      notBefore: 0,
+      access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
     }
 
     it('handles a successful request', async () => {
-      axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserResponse)
+      mockFindOne = jest.fn().mockImplementation(() => { return mockKeycloakUserResponse })
 
       const request = {
         method: 'GET',
@@ -85,7 +98,7 @@ describe('users handler', () => {
         toolkit as unknown as StateResponseToolkit)
 
       expect(response.statusCode).toBe(200)
-      expect(toolkit.response).toBeCalledWith({
+      expect(toolkit.response).toHaveBeenCalledWith({
         user: {
           id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
           name: { givenName: 'user', familyName: 'name' },
@@ -93,21 +106,20 @@ describe('users handler', () => {
           emails: ['user@email.com']
         }
       })
-      expect(axios.get).toHaveBeenCalledWith(
-        'https://identity-server:9443/scim2/Users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        expect.any(Object)
+      expect(mockFindOne).toHaveBeenCalledWith(
+        { id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca' }
       )
     })
 
     it('handles errors', async () => {
-      axios.get = jest.fn().mockImplementation(() => {
-        throw new Error()
-      })
-
+      mockFindOne = jest.fn().mockImplementation(() => { throw new Error('error') })
       const request = {
         method: 'GET',
         url: '/users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        headers: {}
+        headers: {},
+        params: {
+          ID: '9e666741-53f2-4fc0-8c50-d4fce6f59eca'
+        }
       }
 
       const response = await UsersIdHandler.get(

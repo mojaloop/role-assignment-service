@@ -1,3 +1,4 @@
+/* eslint-disable import/first */
 /*****
  License
  --------------
@@ -28,6 +29,10 @@
  --------------
  ******/
 
+let mockFind: jest.Mock = jest.fn()
+let mockFindOne: jest.Mock = jest.fn()
+const mockAuth: jest.Mock = jest.fn()
+
 import index from '~/index'
 import Config from '~/shared/config'
 import { Server } from '@hapi/hapi'
@@ -37,6 +42,16 @@ import Logger from '@mojaloop/central-services-logger'
 jest.mock('axios')
 const mockLoggerPush = jest.spyOn(Logger, 'push')
 const mockLoggerError = jest.spyOn(Logger, 'error')
+
+jest.mock('@keycloak/keycloak-admin-client', () => {
+  return jest.fn().mockImplementation(() => ({
+    auth: mockAuth,
+    users: {
+      find: mockFind,
+      findOne: mockFindOne
+    }
+  }))
+})
 
 describe('index', (): void => {
   it('must have proper layout', (): void => {
@@ -290,26 +305,28 @@ describe('index', (): void => {
     })
 
     describe('/users', (): void => {
-      const mockWso2UserListResponse = {
-        data: {
-          totalResults: 1,
-          startIndex: 1,
-          itemsPerPage: 1,
-          schemas: [],
-          Resources: [
-            {
-              emails: ['user@email.com'],
-              meta: {},
-              roles: [],
-              name: { givenName: 'user', familyName: 'name' },
-              id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-              userName: 'user'
-            }
-          ]
-        }
-      }
+      const mockKeycloakUsersResponse = [{
+        firstName: 'user',
+        lastName: 'name',
+        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+        username: 'user',
+        email: 'user@email.com',
+        createdTimestamp: 1706645601591,
+        enabled: true,
+        totp: false,
+        emailVerified: false,
+        disableableCredentialTypes: [],
+        requiredActions: [],
+        notBefore: 0,
+        access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
+      }]
       it('GET /user', async (): Promise<void> => {
-        axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserListResponse)
+        mockFind = jest.fn().mockImplementation(() => { return mockKeycloakUsersResponse })
+        // Restart server to apply new mock
+        server.stop()
+        mockLoggerPush.mockReturnValue(null)
+        mockLoggerError.mockReturnValue(null)
+        server = await index.server.run(Config)
 
         const request = {
           method: 'GET',
@@ -328,23 +345,34 @@ describe('index', (): void => {
               emails: ['user@email.com']
             }]
         })
-        expect(axios.get).toHaveBeenCalledWith(
-          'https://identity-server:9443/scim2/Users',
-          expect.any(Object)
-        )
+        expect(mockFind).toHaveBeenCalled()
       })
     })
 
     describe('/users/{ID}', (): void => {
-      const mockWso2UserResponse = {
-        data: {
-          name: { givenName: 'user', familyName: 'name' },
-          id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-          userName: 'user'
-        }
+      const mockKeycloakUserResponse = {
+        firstName: 'user',
+        lastName: 'name',
+        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+        username: 'user',
+        email: 'user@email.com',
+        createdTimestamp: 1706645601591,
+        enabled: true,
+        totp: false,
+        emailVerified: false,
+        disableableCredentialTypes: [],
+        requiredActions: [],
+        notBefore: 0,
+        access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
       }
+
       it('GET /user/{ID}', async (): Promise<void> => {
-        axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserResponse)
+        mockFindOne = jest.fn().mockImplementation(() => { return mockKeycloakUserResponse })
+        // Restart server to apply new mock
+        server.stop()
+        mockLoggerPush.mockReturnValue(null)
+        mockLoggerError.mockReturnValue(null)
+        server = await index.server.run(Config)
 
         const request = {
           method: 'GET',
@@ -358,13 +386,13 @@ describe('index', (): void => {
           user: {
             id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
             name: { givenName: 'user', familyName: 'name' },
-            username: 'user'
+            username: 'user',
+            emails: ['user@email.com']
           }
         })
-        expect(axios.get).toHaveBeenCalledWith(
-          'https://identity-server:9443/scim2/Users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-          expect.any(Object)
-        )
+        expect(mockFindOne).toHaveBeenCalledWith({
+          id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca'
+        })
       })
     })
   })

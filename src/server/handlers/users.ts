@@ -28,53 +28,17 @@
  --------------
  ******/
 
-import btoa from 'btoa'
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
-import axios from 'axios'
-import https from 'https'
-import Config from '~/shared/config'
-
-interface Wso2IsUser {
-  emails: string[] | undefined;
-  meta: Record<string, unknown>;
-  roles: Record<string, unknown>[];
-  name: {
-    givenName: string | undefined;
-    familyName: string | undefined;
-  };
-  id: string;
-  userName: string;
-}
-interface Wso2IsUserQueryResponse {
-  totalResults: number;
-  startIndex: number;
-  itemsPerPage: number;
-  schemas: string[]
-  Resources: Wso2IsUser[];
-}
 
 const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
-    const basicAuth = 'Basic ' + btoa(`${Config.WSO2_USER}:${Config.WSO2_PASSWORD}`)
-    const response = await axios.get(Config.WSO2IS_USER_LIST_URL, {
-      headers: {
-        Accept: 'application/json',
-        Authorization: basicAuth
-      },
-      // WARNING!!!: this bypasses ssl certification. proceeding just for
-      //             development purposes
-      // TODO: figure out wso2 ssl setup
-      httpsAgent: new https.Agent({
-        rejectUnauthorized: false
-      })
-    })
-    const query = response.data as Wso2IsUserQueryResponse
-    const userIdList = query.Resources.map((obj) => ({
+    const users = await h.getKeycloakAdmin().users.find()
+    const userIdList = users.map((obj) => ({
       id: obj.id,
-      name: obj.name,
-      username: obj.userName,
-      emails: obj.emails
+      name: { givenName: obj.firstName, familyName: obj.lastName },
+      username: obj.username,
+      emails: obj.email ? [obj.email] : []
     }))
     return h.response({ users: userIdList }).code(200)
   } catch (e) {

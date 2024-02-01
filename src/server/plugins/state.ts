@@ -35,11 +35,13 @@ import { ResponseToolkit, Server } from '@hapi/hapi'
 import { logger } from '~/shared/logger'
 import * as keto from '@ory/keto-client'
 import Config from '~/shared/config'
+import KcAdminClient from '@keycloak/keycloak-admin-client'
 
 export interface StateResponseToolkit extends ResponseToolkit {
   getLogger: () => SDKLogger.Logger
   getKetoReadApi: () => keto.ReadApi
   getKetoWriteApi: () => keto.WriteApi
+  getKeycloakAdmin: () => KcAdminClient
 }
 
 export const StatePlugin = {
@@ -56,6 +58,20 @@ export const StatePlugin = {
       undefined,
       Config.ORY_KETO_WRITE_SERVICE_URL
     )
+    const kcAdminClient = new KcAdminClient(
+      {
+        baseUrl: Config.KEYCLOAK_URL,
+        realmName: Config.KEYCLOAK_REALM
+      }
+    )
+
+    // Authorize with username / password
+    await kcAdminClient.auth({
+      username: Config.KEYCLOAK_USER,
+      password: Config.KEYCLOAK_PASSWORD,
+      grantType: 'password',
+      clientId: 'admin-cli'
+    })
 
     logger.info('StatePlugin: plugin initializing')
 
@@ -64,6 +80,7 @@ export const StatePlugin = {
       server.decorate('toolkit', 'getLogger', (): SDKLogger.Logger => logger)
       server.decorate('toolkit', 'getKetoReadApi', (): keto.ReadApi => oryKetoReadApi)
       server.decorate('toolkit', 'getKetoWriteApi', (): keto.WriteApi => oryKetoWriteApi)
+      server.decorate('toolkit', 'getKeycloakAdmin', (): KcAdminClient => kcAdminClient)
     } catch (err) {
       logger.error('StatePlugin: unexpected exception during plugin registration')
       logger.error(err)

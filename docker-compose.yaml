@@ -5,44 +5,6 @@ networks:
     name: mojaloop-net
 
 services:
-  mysql-is:
-    container_name: mysql-is
-    image: mysql:5.7.29
-    ports:
-      - 3306
-    networks:
-      - mojaloop-net
-    environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_USER: wso2carbon
-        MYSQL_PASSWORD: wso2carbon
-    volumes:
-      - ./docker/mysql/scripts:/docker-entrypoint-initdb.d
-      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-uroot", "-proot"]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-
-  identity-server:
-    container_name: identity-server
-    image: wso2/wso2is:5.7.0
-    ports:
-      - "9763:9763"
-      - "9443:9443"
-    networks:
-      - mojaloop-net
-    healthcheck:
-      test: ["CMD", "curl", "-k", "-f", "https://localhost:9443/carbon/admin/login.jsp"]
-      timeout: 20s
-      retries: 45
-      interval: 15s
-    volumes:
-      - ./docker/identity-server:/home/wso2carbon/wso2-config-volume
-    depends_on:
-      - mysql-is
-
   role-assignment-service:
     container_name: role-assignment-service
     image: mojaloop/role-assignment-service
@@ -194,3 +156,42 @@ services:
       retries: 30
       interval: 30s
       start_period: 30s
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.0
+    user: root
+    container_name: keycloak
+    command: ['start-dev --import-realm']
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql-keycloak:
+        condition: service_healthy
+    volumes:
+       - ./docker/realm-export.json:/opt/keycloak/data/import/realm.json
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=mysql
+      - KC_DB_URL_HOST=mysql-keycloak
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=password
+      - KC_HEALTH_ENABLED=true
+    networks:
+      - mojaloop-net
+
+  mysql-keycloak:
+    image: mysql:5.7.41
+    container_name: mysql-keycloak
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=keycloak
+      - MYSQL_USER=keycloak
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=root_password
+    healthcheck:
+      test: "mysqladmin ping -u root -p$${MYSQL_ROOT_PASSWORD}"
+    networks:
+      - mojaloop-net

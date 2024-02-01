@@ -54,9 +54,10 @@ export interface ServiceConfig {
   ROLE_OPERATOR_SERVICE_URL: string;
   ORY_KETO_READ_SERVICE_URL: string;
   ORY_KETO_WRITE_SERVICE_URL: string;
-  WSO2IS_USER_LIST_URL: string;
-  WSO2_USER: string;
-  WSO2_PASSWORD: string;
+  KEYCLOAK_URL: string;
+  KEYCLOAK_USER: string;
+  KEYCLOAK_PASSWORD: string;
+  KEYCLOAK_REALM: string;
   ERROR_HANDLING: {
     includeCauseExtension: boolean;
     truncateExtensions: boolean;

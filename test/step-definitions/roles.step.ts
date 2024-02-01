@@ -5,6 +5,16 @@ import Config from '~/shared/config'
 
 import RoleAssignmentService from '~/server'
 
+jest.mock('@keycloak/keycloak-admin-client', () => {
+  return jest.fn().mockImplementation(() => ({
+    auth: jest.fn(),
+    users: {
+      find: jest.fn(),
+      findOne: jest.fn()
+    }
+  }))
+})
+
 const featurePath = path.join(__dirname, '../features/roles.scenario.feature')
 const feature = loadFeature(featurePath)
 

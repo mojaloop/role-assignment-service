@@ -33,6 +33,11 @@ import { Server } from '@hapi/hapi'
 import { mockProcessExit } from 'jest-mock-process'
 
 jest.mock('~/shared/logger')
+jest.mock('@keycloak/keycloak-admin-client', () => {
+  return jest.fn().mockImplementation(() => ({
+    auth: jest.fn()
+  }))
+})
 
 describe('StatePlugin', () => {
   const ServerMock = {
@@ -60,6 +65,8 @@ describe('StatePlugin', () => {
     expect(ServerMock.decorate.mock.calls[1][1]).toEqual('getKetoReadApi')
     expect(ServerMock.decorate.mock.calls[2][0]).toEqual('toolkit')
     expect(ServerMock.decorate.mock.calls[2][1]).toEqual('getKetoWriteApi')
+    expect(ServerMock.decorate.mock.calls[3][0]).toEqual('toolkit')
+    expect(ServerMock.decorate.mock.calls[3][1]).toEqual('getKeycloakAdmin')
   })
 
   it('exceptions: should properly register', async () => {
