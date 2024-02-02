@@ -1,4 +1,14 @@
-# Changelog: [mojaloop/role-assignment-service](https://github.com/mojaloop/role-assignment-service)
+# Changelog
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### [1.0.2](https://github.com/mojaloop/role-assignment-service/compare/v1.0.1...v1.0.2) (2024-02-02)
+
+
+### Chore
+
+* update service for node 18 ([#26](https://github.com/mojaloop/role-assignment-service/issues/26)) ([517aac4](https://github.com/mojaloop/role-assignment-service/commit/517aac46c1b427e2a990440c9c17ee4b3b268321))
+
 ### [1.0.1](https://github.com/mojaloop/role-assignment-service/compare/v0.0.8...v1.0.1) (2022-01-24)
 
 ### [0.0.8](https://github.com/mojaloop/role-assignment-service/compare/v0.0.7...v0.0.8) (2022-01-13)
