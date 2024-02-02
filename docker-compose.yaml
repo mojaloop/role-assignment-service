@@ -84,24 +84,25 @@ services:
   #    - mojaloop-net
 
   central-ledger:
-    image: mojaloop/central-ledger:v13.11.1
+    image: mojaloop/central-ledger:v17.6.0
     container_name: central-ledger
-    command: sh -c "/opt/central-ledger/scripts/wait4.js central-ledger && node src/api/index.js"
+    command: sh -c "/opt/app/scripts/wait4.js central-ledger && node src/api/index.js"
     ports:
       - "3001:3001"
     volumes:
-      - ./docker/central-ledger/default.json:/opt/central-ledger/config/default.json
-      - ./scripts/wait4.js:/opt/central-ledger/scripts/wait4.js
-      - ./scripts/wait4.config.js:/opt/central-ledger/scripts/wait4.config.js
+      - ./docker/central-ledger/default.json:/opt/app/config/default.json
+      - ./scripts/wait4.js:/opt/app/scripts/wait4.js
+      - ./scripts/wait4.config.js:/opt/app/scripts/wait4.config.js
     environment:
       - LOG_LEVEL=info
       - CLEDG_MONGODB__DISABLED=false
     networks:
       - mojaloop-net
     depends_on:
-      - mysql
-      - kafka
-      - objstore
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     healthcheck:
       test: wget -q http://localhost:3001/health -O /dev/null || exit 1
       timeout: 20s
@@ -113,19 +114,21 @@ services:
   objstore:
     image: mongo:latest
     container_name: objstore
-    # Disable logging, this container is not that important and rather verbose
+    deploy:
+      replicas: 1
+    # Disable logging as it is far too verbose for debugging locally
     logging:
       driver: none
     ports:
       - "27017:27017"
     networks:
       - mojaloop-net
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
+    # healthcheck:
+    #   test: mongo --eval 'db.runCommand("ping").ok' localhost:27017/test --quiet
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 5
+    #   start_period: 40s
 
   mysql:
     image: mysql/mysql-server
@@ -171,6 +174,8 @@ services:
   moja-role-operator:
     # TODO: Change the following temporary image to standard release version
     image: vijayg10/security-role-perm-operator-svc:v2.0.0
+    logging:
+      driver: "none"
     container_name: moja-role-operator
     ports:
       - "23001:3001"
