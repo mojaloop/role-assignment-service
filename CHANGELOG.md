@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/mojaloop/role-assignment-service/compare/v1.0.2...v2.0.0) (2024-02-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* add keycloak support (#27)
+
+### Features
+
+* add keycloak support ([#27](https://github.com/mojaloop/role-assignment-service/issues/27)) ([45312f6](https://github.com/mojaloop/role-assignment-service/commit/45312f64342e73d1bf10c0f30b6e28dc99164191))
+
 ### [1.0.2](https://github.com/mojaloop/role-assignment-service/compare/v1.0.1...v1.0.2) (2024-02-02)
 
 
