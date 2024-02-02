@@ -33,6 +33,11 @@ import { Server } from '@hapi/hapi'
 import { mockProcessExit } from 'jest-mock-process'
 
 jest.mock('~/shared/logger')
+jest.mock('@keycloak/keycloak-admin-client', () => {
+  return jest.fn().mockImplementation(() => ({
+    auth: jest.fn()
+  }))
+})
 
 describe('StatePlugin', () => {
   const ServerMock = {
@@ -50,7 +55,7 @@ describe('StatePlugin', () => {
   })
 
   it('happy flow: should properly register', async () => {
-    await StatePlugin.register(ServerMock as unknown as Server)
+    await StatePlugin.register(ServerMock as unknown as Server, false)
 
     // check decoration
     expect(ServerMock.decorate)
@@ -60,6 +65,8 @@ describe('StatePlugin', () => {
     expect(ServerMock.decorate.mock.calls[1][1]).toEqual('getKetoReadApi')
     expect(ServerMock.decorate.mock.calls[2][0]).toEqual('toolkit')
     expect(ServerMock.decorate.mock.calls[2][1]).toEqual('getKetoWriteApi')
+    expect(ServerMock.decorate.mock.calls[3][0]).toEqual('toolkit')
+    expect(ServerMock.decorate.mock.calls[3][1]).toEqual('getKeycloakAdmin')
   })
 
   it('exceptions: should properly register', async () => {
@@ -69,8 +76,8 @@ describe('StatePlugin', () => {
     })
 
     const mockExit = mockProcessExit()
-    await StatePlugin.register(ServerMock as unknown as Server)
-    expect(mockExit).toBeCalledWith(1)
+    await StatePlugin.register(ServerMock as unknown as Server, false)
+    expect(mockExit).toHaveBeenCalledWith(1)
     mockExit.mockRestore()
   })
 })

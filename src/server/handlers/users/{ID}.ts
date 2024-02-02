@@ -28,47 +28,25 @@
  --------------
  ******/
 
-import btoa from 'btoa'
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
-import axios from 'axios'
-import https from 'https'
-import Config from '~/shared/config'
-
-interface Wso2IsUser {
-  name: {
-    givenName: string | undefined;
-    familyName: string | undefined;
-  };
-  id: string;
-  userName: string | undefined;
-  emails: string[] | undefined;
-}
 
 const get = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
     const userId: string = request.params.ID
-    const basicAuth = 'Basic ' + btoa(`${Config.WSO2_USER}:${Config.WSO2_PASSWORD}`)
-    const response = await axios.get(`${Config.WSO2IS_USER_LIST_URL}/${userId}`, {
-      headers: {
-        Accept: 'application/json',
-        Authorization: basicAuth
-      },
-      // WARNING!!!: this bypasses ssl certification. proceeding just for
-      //             development purposes
-      // TODO: figure out wso2 ssl setup
-      httpsAgent: new https.Agent({
-        rejectUnauthorized: false
-      })
-    })
-    const data = response.data as Wso2IsUser
-    const user = {
-      id: data.id,
-      name: data.name,
-      username: data.userName,
-      emails: data.emails
+
+    const keycloakUser = await h.getKeycloakAdmin().users.findOne({ id: userId })
+    if (!keycloakUser) {
+      throw new Error('User not found')
     }
-    return h.response({ user: user }).code(200)
+
+    const user = {
+      id: keycloakUser.id,
+      name: { givenName: keycloakUser.firstName, familyName: keycloakUser.lastName },
+      username: keycloakUser.username,
+      emails: keycloakUser.email ? [keycloakUser.email] : []
+    }
+    return h.response({ user }).code(200)
   } catch (e) {
     h.getLogger().error(e)
     // TODO: add error information

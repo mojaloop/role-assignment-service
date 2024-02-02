@@ -51,6 +51,7 @@ const get = async (_context: unknown, _request: Request, h: StateResponseToolkit
   response.LoggerPresent = typeof h.getLogger() !== 'undefined'
   response.KetoReadApiPresent = typeof h.getKetoReadApi() !== 'undefined'
   response.KetoWriteApPresent = typeof h.getKetoWriteApi() !== 'undefined'
+  response.KeycloakAdminPresent = typeof h.getKeycloakAdmin() !== 'undefined'
   return h.response(response).code(200)
 }
 

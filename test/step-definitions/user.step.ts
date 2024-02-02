@@ -1,3 +1,8 @@
+/* eslint-disable import/first */
+let mockFind: jest.Mock = jest.fn()
+let mockFindOne: jest.Mock = jest.fn()
+const mockAuth: jest.Mock = jest.fn()
+
 import { Server, ServerInjectResponse } from '@hapi/hapi'
 import axios from 'axios'
 import { defineFeature, loadFeature } from 'jest-cucumber'
@@ -8,6 +13,15 @@ import Config from '~/shared/config'
 // NOTE: having trouble mocking the keto library
 //       so mocking axios which the keto library uses for now
 jest.mock('axios')
+jest.mock('@keycloak/keycloak-admin-client', () => {
+  return jest.fn().mockImplementation(() => ({
+    auth: mockAuth,
+    users: {
+      find: mockFind,
+      findOne: mockFindOne
+    }
+  }))
+})
 
 const featurePath = path.join(__dirname, '../features/users.scenario.feature')
 const feature = loadFeature(featurePath)
@@ -207,31 +221,31 @@ defineFeature(feature, (test): void => {
   })
 
   test('Get Users', ({ given, when, then }): void => {
-    const mockWso2UserListResponse = {
-      data: {
-        totalResults: 1,
-        startIndex: 1,
-        itemsPerPage: 1,
-        schemas: [],
-        Resources: [
-          {
-            emails: [],
-            meta: {},
-            roles: [],
-            name: { givenName: 'user', familyName: 'name' },
-            id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-            userName: 'user'
-          }
-        ]
-      }
-    }
+    const mockKeycloakUsersResponse = [{
+      firstName: 'user',
+      lastName: 'name',
+      id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+      username: 'user',
+      email: 'user@email.com',
+      createdTimestamp: 1706645601591,
+      enabled: true,
+      totp: false,
+      emailVerified: false,
+      disableableCredentialTypes: [],
+      requiredActions: [],
+      notBefore: 0,
+      access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
+    }]
 
-    given('role-assignment-service server', (): void => {
+    given('role-assignment-service server', async (): Promise<void> => {
+      mockFind = jest.fn().mockImplementation(() => { return mockKeycloakUsersResponse })
+      // reset the server to use the mock
+      server.stop()
+      server = await RoleAssignmentService.run(Config)
       expect(server).toBeDefined()
     })
 
     when('I make a GET Users request', async (): Promise<ServerInjectResponse> => {
-      axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserListResponse)
       const request = {
         method: 'GET',
         url: '/users'
@@ -241,30 +255,36 @@ defineFeature(feature, (test): void => {
     })
 
     then('The status should be \'OK\'', (): void => {
-      expect(axios.get).toBeCalledWith(
-        'https://identity-server:9443/scim2/Users',
-        expect.any(Object)
-      )
       expect(response.statusCode).toBe(200)
     })
   })
 
   test('Get User By ID', ({ given, when, then }): void => {
-    const mockWso2UserResponse = {
-      data: {
-        name: { givenName: 'user', familyName: 'name' },
-        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        userName: 'user',
-        emails: ['user@emails.com']
-      }
+    const mockKeycloakUserResponse = {
+      firstName: 'user',
+      lastName: 'name',
+      id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+      username: 'user',
+      email: 'user@email.com',
+      createdTimestamp: 1706645601591,
+      enabled: true,
+      totp: false,
+      emailVerified: false,
+      disableableCredentialTypes: [],
+      requiredActions: [],
+      notBefore: 0,
+      access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
     }
 
-    given('role-assignment-service server', (): void => {
+    given('role-assignment-service server', async (): Promise<void> => {
+      mockFindOne = jest.fn().mockImplementation(() => { return mockKeycloakUserResponse })
+      // reset the server to use the mock
+      server.stop()
+      server = await RoleAssignmentService.run(Config)
       expect(server).toBeDefined()
     })
 
     when('I make a GET User by ID request', async (): Promise<ServerInjectResponse> => {
-      axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserResponse)
       const request = {
         method: 'GET',
         url: '/users/9e666741-53f2-4fc0-8c50-d4fce6f59eca'
@@ -274,10 +294,6 @@ defineFeature(feature, (test): void => {
     })
 
     then('The status should be \'OK\'', (): void => {
-      expect(axios.get).toBeCalledWith(
-        'https://identity-server:9443/scim2/Users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        expect.any(Object)
-      )
       expect(response.statusCode).toBe(200)
     })
   })

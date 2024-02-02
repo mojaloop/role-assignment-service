@@ -35,19 +35,21 @@ import { ResponseToolkit, Server } from '@hapi/hapi'
 import { logger } from '~/shared/logger'
 import * as keto from '@ory/keto-client'
 import Config from '~/shared/config'
+import KcAdminClient from '@keycloak/keycloak-admin-client'
+import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth'
 
 export interface StateResponseToolkit extends ResponseToolkit {
   getLogger: () => SDKLogger.Logger
   getKetoReadApi: () => keto.ReadApi
   getKetoWriteApi: () => keto.WriteApi
+  getKeycloakAdmin: () => KcAdminClient
 }
 
 export const StatePlugin = {
   version: '1.0.0',
   name: 'StatePlugin',
   once: true,
-
-  register: async (server: Server): Promise<void> => {
+  register: async (server: Server, refreshKcAuth: boolean): Promise<void> => {
     const oryKetoReadApi = new keto.ReadApi(
       undefined,
       Config.ORY_KETO_READ_SERVICE_URL
@@ -56,7 +58,26 @@ export const StatePlugin = {
       undefined,
       Config.ORY_KETO_WRITE_SERVICE_URL
     )
-
+    const kcAdminClient = new KcAdminClient(
+      {
+        baseUrl: Config.KEYCLOAK_URL,
+        realmName: Config.KEYCLOAK_REALM
+      }
+    )
+    const credentials: Credentials = {
+      username: Config.KEYCLOAK_USER,
+      password: Config.KEYCLOAK_PASSWORD,
+      grantType: 'password',
+      clientId: 'admin-cli'
+    }
+    // Authorize with username / password
+    await kcAdminClient.auth(credentials)
+    if (refreshKcAuth) {
+      const kcRefreshInterval = setInterval(() => kcAdminClient.auth(credentials), Config.KEYCLOAK_REFRESH_INTERVAL)
+      server.events.on('stop', () => {
+        clearInterval(kcRefreshInterval)
+      })
+    }
     logger.info('StatePlugin: plugin initializing')
 
     try {
@@ -64,6 +85,7 @@ export const StatePlugin = {
       server.decorate('toolkit', 'getLogger', (): SDKLogger.Logger => logger)
       server.decorate('toolkit', 'getKetoReadApi', (): keto.ReadApi => oryKetoReadApi)
       server.decorate('toolkit', 'getKetoWriteApi', (): keto.WriteApi => oryKetoWriteApi)
+      server.decorate('toolkit', 'getKeycloakAdmin', (): KcAdminClient => kcAdminClient)
     } catch (err) {
       logger.error('StatePlugin: unexpected exception during plugin registration')
       logger.error(err)

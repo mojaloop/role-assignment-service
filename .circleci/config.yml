@@ -352,6 +352,7 @@ jobs:
           name: Build docker images
           command: |
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            docker-compose build
             docker-compose up -d
             npm run wait-4-docker
       - run:

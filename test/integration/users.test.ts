@@ -31,20 +31,17 @@
 import axios from 'axios'
 
 describe('GET /users', (): void => {
-  // wso2is is preloaded with an admin account
+  // keycloak is preloaded with an admin account
   const expectedResp = {
     users: [{
       emails: expect.any(Array),
       id: expect.any(String),
-      name: {
-        familyName: 'admin',
-        givenName: 'admin'
-      },
-      username: expect.any(String)
+      name: {},
+      username: 'admin'
     }]
   }
 
-  it('returns participant id list queried from wso2is', async (): Promise<void> => {
+  it('returns participant id list queried from keycloak', async (): Promise<void> => {
     const scenariosURI = 'http://127.0.0.1:3008/users'
     const response = await axios.get(scenariosURI)
 
@@ -158,39 +155,33 @@ describe('GET/PATCH /users/{ID}/roles', (): void => {
 })
 
 describe('GET /users/{ID}', (): void => {
-  // wso2is is preloaded with an admin account
+  // keycloak is preloaded with an admin account
   const expectedResp = {
     users: [{
       emails: expect.any(Array),
       id: expect.any(String),
-      name: {
-        familyName: 'admin',
-        givenName: 'admin'
-      },
-      username: expect.any(String)
+      name: {},
+      username: 'admin'
     }]
   }
 
   const expectedUserResp = {
     user: {
       id: expect.any(String),
-      name: {
-        familyName: 'admin',
-        givenName: 'admin'
-      },
-      username: expect.any(String),
+      name: {},
+      username: 'admin',
       emails: expect.any(Array)
     }
   }
 
-  it('returns participant id list queried from wso2is', async (): Promise<void> => {
+  it('returns participant id list queried from keycloak', async (): Promise<void> => {
     const scenariosURI = 'http://127.0.0.1:3008/users'
     const response = await axios.get(scenariosURI)
 
     expect(response.status).toBe(200)
     expect(response.data).toEqual(expectedResp)
 
-    // id is non-deterministic in the integration wso2 service
+    // id is non-deterministic in the integration keycloak service
     // so we are just retrieving all users and taking a test id to use
     const id = response.data.users[0].id
 

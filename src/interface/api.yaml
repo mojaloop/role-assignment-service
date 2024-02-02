@@ -72,7 +72,7 @@ paths:
       operationId: UsersGet
       description: >-
         The HTTP request GET /users is used to return a list of user.
-        Retrieves a user list from a WSO2 identity server.
+        Retrieves a user list from Keycloak.
       responses:
         '200':
           $ref: '#/components/schemas/UsersGetResponse'
@@ -104,7 +104,7 @@ paths:
       operationId: UsersIDGet
       description: >-
         The HTTP request GET /users is used to return a specific user.
-        Retrieves a user from a WSO2 identity server.
+        Retrieves a user from Keycloak.
       responses:
         '200':
           $ref: '#/components/schemas/UsersIDGetResponse'
@@ -419,30 +419,6 @@ components:
     User:
       title: User
       type: object
-      description: >-
-        A trimmed data model of a WSO2 user.
-      required:
-        - id
-        - username
-      properties:
-        id:
-          description: An WSO2 ID.
-          type: string
-        username:
-          description: WSO2 username.
-          type: string
-        name:
-          description: WSO2 name object.
-          type: object
-          properties:
-            givenName:
-              type: string
-            familyName:
-              type: string
-        emails:
-          type: array
-          items:
-            type: string
     UsersGetResponse:
       title: UsersGetResponse
       type: object

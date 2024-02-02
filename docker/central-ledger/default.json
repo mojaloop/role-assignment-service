@@ -39,7 +39,7 @@
     "truncateExtensions": true
   },
   "HANDLERS": {
-    "DISABLED": false,
+    "DISABLED": true,
     "API": {
       "DISABLED": false
     },

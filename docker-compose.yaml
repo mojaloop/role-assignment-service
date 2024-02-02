@@ -5,44 +5,6 @@ networks:
     name: mojaloop-net
 
 services:
-  mysql-is:
-    container_name: mysql-is
-    image: mysql:5.7.29
-    ports:
-      - 3306
-    networks:
-      - mojaloop-net
-    environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_USER: wso2carbon
-        MYSQL_PASSWORD: wso2carbon
-    volumes:
-      - ./docker/mysql/scripts:/docker-entrypoint-initdb.d
-      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-uroot", "-proot"]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-
-  identity-server:
-    container_name: identity-server
-    image: wso2/wso2is:5.7.0
-    ports:
-      - "9763:9763"
-      - "9443:9443"
-    networks:
-      - mojaloop-net
-    healthcheck:
-      test: ["CMD", "curl", "-k", "-f", "https://localhost:9443/carbon/admin/login.jsp"]
-      timeout: 20s
-      retries: 45
-      interval: 15s
-    volumes:
-      - ./docker/identity-server:/home/wso2carbon/wso2-config-volume
-    depends_on:
-      - mysql-is
-
   role-assignment-service:
     container_name: role-assignment-service
     image: mojaloop/role-assignment-service
@@ -54,6 +16,9 @@ services:
       - "3008:3008"
     networks:
       - mojaloop-net
+    depends_on:
+      keycloak:
+        condition: service_healthy
     healthcheck:
       test: wget -q http://172.17.0.1:3008/health -O /dev/null || exit 1
       timeout: 20s
@@ -172,8 +137,7 @@ services:
       interval: 30s
 
   moja-role-operator:
-    # TODO: Change the following temporary image to standard release version
-    image: vijayg10/security-role-perm-operator-svc:v2.0.0
+    image: mojaloop/security-role-perm-operator-svc:v2.0.0
     logging:
       driver: "none"
     container_name: moja-role-operator
@@ -186,7 +150,10 @@ services:
     networks:
       - mojaloop-net
     depends_on:
-      - keto
+      role-assignment-service:
+        condition: service_healthy
+      keto:
+        condition: service_started
     user: root
     healthcheck:
       test: curl -f -s http://localhost:3001/health > /dev/null || exit 1
@@ -194,3 +161,48 @@ services:
       retries: 30
       interval: 30s
       start_period: 30s
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.0
+    user: root
+    container_name: keycloak
+    command: ['start-dev --import-realm']
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql-keycloak:
+        condition: service_healthy
+    volumes:
+       - ./docker/realm-export.json:/opt/keycloak/data/import/realm.json
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=mysql
+      - KC_DB_URL_HOST=mysql-keycloak
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=password
+      - KC_HEALTH_ENABLED=true
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s
+
+  mysql-keycloak:
+    image: mysql:5.7.41
+    container_name: mysql-keycloak
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=keycloak
+      - MYSQL_USER=keycloak
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=root_password
+    healthcheck:
+      test: "mysqladmin ping -u root -p$${MYSQL_ROOT_PASSWORD}"
+    networks:
+      - mojaloop-net

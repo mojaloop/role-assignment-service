@@ -34,23 +34,29 @@ import Logger from '@mojaloop/central-services-logger'
 import { StateResponseToolkit } from '~/server/plugins/state'
 import UsersHandler from '~/server/handlers/users'
 import { logger } from '~/shared/logger'
-import axios from 'axios'
 
-jest.mock('axios')
 const mockLoggerPush = jest.spyOn(Logger, 'push')
 const mockLoggerError = jest.spyOn(Logger, 'error')
 
 describe('users handler', () => {
+  let mockFind: jest.Mock = jest.fn()
   beforeEach((): void => {
     mockLoggerPush.mockReturnValue(null)
     mockLoggerError.mockReturnValue(null)
   })
 
   describe('GET /users', () => {
+    const mockAuth: jest.Mock = jest.fn()
     const toolkit = {
       getLogger: jest.fn(() => logger),
       getKetoReadApi: jest.fn(),
       getKetoWriteApi: jest.fn(),
+      getKeycloakAdmin: jest.fn().mockImplementation(() => ({
+        auth: mockAuth,
+        users: {
+          find: mockFind
+        }
+      })),
       response: jest.fn(() => ({
         code: jest.fn((code: number) => ({
           statusCode: code
@@ -58,27 +64,24 @@ describe('users handler', () => {
       }))
     }
 
-    const mockWso2UserListResponse = {
-      data: {
-        totalResults: 1,
-        startIndex: 1,
-        itemsPerPage: 1,
-        schemas: [],
-        Resources: [
-          {
-            emails: ['user@email.com'],
-            meta: {},
-            roles: [],
-            name: { givenName: 'user', familyName: 'name' },
-            id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-            userName: 'user'
-          }
-        ]
-      }
-    }
+    const mockKeycloakUsersResponse = [{
+      firstName: 'user',
+      lastName: 'name',
+      id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+      username: 'user',
+      email: 'user@email.com',
+      createdTimestamp: 1706645601591,
+      enabled: true,
+      totp: false,
+      emailVerified: false,
+      disableableCredentialTypes: [],
+      requiredActions: [],
+      notBefore: 0,
+      access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
+    }]
 
     it('handles a successful request', async () => {
-      axios.get = jest.fn().mockResolvedValueOnce(mockWso2UserListResponse)
+      mockFind = jest.fn().mockImplementation(() => { return mockKeycloakUsersResponse })
 
       const request = {
         method: 'GET',
@@ -92,7 +95,7 @@ describe('users handler', () => {
         toolkit as unknown as StateResponseToolkit)
 
       expect(response.statusCode).toBe(200)
-      expect(toolkit.response).toBeCalledWith({
+      expect(toolkit.response).toHaveBeenCalledWith({
         users: [
           {
             id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
@@ -101,16 +104,39 @@ describe('users handler', () => {
             emails: ['user@email.com']
           }]
       })
-      expect(axios.get).toHaveBeenCalledWith(
-        'https://identity-server:9443/scim2/Users',
-        expect.any(Object)
-      )
+      expect(mockFind).toHaveBeenCalled()
+    })
+
+    it('handles a successful request without email', async () => {
+      const noEmail = [{ ...mockKeycloakUsersResponse[0], email: null }]
+      mockFind = jest.fn().mockImplementation(() => { return noEmail })
+
+      const request = {
+        method: 'GET',
+        url: '/users',
+        headers: {}
+      }
+
+      const response = await UsersHandler.get(
+        null,
+        request as unknown as Request,
+        toolkit as unknown as StateResponseToolkit)
+
+      expect(response.statusCode).toBe(200)
+      expect(toolkit.response).toHaveBeenCalledWith({
+        users: [
+          {
+            id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+            name: { givenName: 'user', familyName: 'name' },
+            username: 'user',
+            emails: ['user@email.com']
+          }]
+      })
+      expect(mockFind).toHaveBeenCalled()
     })
 
     it('handles errors', async () => {
-      axios.get = jest.fn().mockImplementation(() => {
-        throw new Error()
-      })
+      mockFind = jest.fn().mockImplementation(() => { throw new Error('error') })
 
       const request = {
         method: 'GET',

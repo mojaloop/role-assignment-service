@@ -109,5 +109,4 @@ describe('start', () => {
     expect(mockServer.start).toHaveBeenCalledTimes(1)
     expect(result).toStrictEqual(mockServer)
   })
-
 })
