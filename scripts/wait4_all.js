@@ -11,7 +11,6 @@ const { execSync } = require('child_process')
 const expectedContainers = [
   'role-assignment-service',
   'central-ledger',
-  'kafka',
   'mysql',
   'mysql-keycloak',
   'keycloak',

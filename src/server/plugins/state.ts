@@ -40,8 +40,8 @@ import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth'
 
 export interface StateResponseToolkit extends ResponseToolkit {
   getLogger: () => SDKLogger.Logger
-  getKetoReadApi: () => keto.ReadApi
-  getKetoWriteApi: () => keto.WriteApi
+  getReadRelationshipApi: () => keto.RelationshipApi
+  getWriteRelationshipApi: () => keto.RelationshipApi
   getKeycloakAdmin: () => KcAdminClient
 }
 
@@ -50,11 +50,11 @@ export const StatePlugin = {
   name: 'StatePlugin',
   once: true,
   register: async (server: Server, refreshKcAuth: boolean): Promise<void> => {
-    const oryKetoReadApi = new keto.ReadApi(
+    const oryKetoReadRelationshipApi = new keto.RelationshipApi(
       undefined,
       Config.ORY_KETO_READ_SERVICE_URL
     )
-    const oryKetoWriteApi = new keto.WriteApi(
+    const oryKetoWriteRelationshipApi = new keto.RelationshipApi(
       undefined,
       Config.ORY_KETO_WRITE_SERVICE_URL
     )
@@ -83,8 +83,8 @@ export const StatePlugin = {
     try {
       // prepare toolkit accessors
       server.decorate('toolkit', 'getLogger', (): SDKLogger.Logger => logger)
-      server.decorate('toolkit', 'getKetoReadApi', (): keto.ReadApi => oryKetoReadApi)
-      server.decorate('toolkit', 'getKetoWriteApi', (): keto.WriteApi => oryKetoWriteApi)
+      server.decorate('toolkit', 'getReadRelationshipApi', (): keto.RelationshipApi => oryKetoReadRelationshipApi)
+      server.decorate('toolkit', 'getWriteRelationshipApi', (): keto.RelationshipApi => oryKetoWriteRelationshipApi)
       server.decorate('toolkit', 'getKeycloakAdmin', (): KcAdminClient => kcAdminClient)
     } catch (err) {
       logger.error('StatePlugin: unexpected exception during plugin registration')

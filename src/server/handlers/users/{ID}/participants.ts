@@ -30,7 +30,7 @@
 
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
-import { PatchDelta } from '@ory/keto-client'
+import { RelationshipPatch } from '@ory/keto-client'
 
 interface PatchOperation {
   participantId: string;
@@ -43,12 +43,11 @@ interface UserIDParticipantsPatchRequest {
 const get = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
     const userId = request.params.ID
-    const response = await h.getKetoReadApi().getRelationTuples(
-      'participant',
-      undefined,
-      'member',
-      userId
-    )
+    const response = await h.getReadRelationshipApi().getRelationships({
+      namespace: 'participant',
+      relation: 'member',
+      subjectId: userId
+    })
     const participantIdList = response.data.relation_tuples?.map(({ object }) => object)
     return h.response({
       participants: participantIdList
@@ -63,16 +62,18 @@ const patch = async (_context: unknown, request: Request, h: StateResponseToolki
   try {
     const userId = request.params.ID
     const payload = request.payload as UserIDParticipantsPatchRequest
-    const participantDelta: PatchDelta[] = payload.participantOperations.map((operation) => ({
+    const participantDelta: RelationshipPatch[] = payload.participantOperations.map((operation) => ({
       action: operation.action,
       relation_tuple: {
         namespace: 'participant',
         object: operation.participantId,
         relation: 'member',
-        subject: userId
+        subject_id: userId
       }
     }))
-    await h.getKetoWriteApi().patchRelationTuples(participantDelta)
+    await h.getWriteRelationshipApi().patchRelationships({
+      relationshipPatch: participantDelta
+    })
     // NOTE: return a 200 or 204 here?
     return h.response().code(200)
   } catch (e) {

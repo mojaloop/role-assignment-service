@@ -45,12 +45,11 @@ interface UserIDRolesPatchRequest {
 const get = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
     const userId = request.params.ID
-    const response = await h.getKetoReadApi().getRelationTuples(
-      'role',
-      undefined,
-      'member',
-      userId
-    )
+    const response = await h.getReadRelationshipApi().getRelationships({
+      namespace: 'role',
+      relation: 'member',
+      subjectId: userId
+    })
     const rolesIdList = response.data.relation_tuples?.map(({ object }) => object)
     return h.response({
       roles: rolesIdList
@@ -66,26 +65,13 @@ const patch = async (_context: unknown, request: Request, h: StateResponseToolki
   try {
     const userId = request.params.ID
     const payload = request.payload as UserIDRolesPatchRequest
-    // Commenting out the following lines to not update keto tuples directly to assign roles to users
-    // Instead, call role operator's role assignment API endpoint to validate and assign the roles properly
-    // const roleDelta: PatchDelta[] = payload.roleOperations.map((operation) => ({
-    //   action: operation.action,
-    //   relation_tuple: {
-    //     namespace: 'role',
-    //     object: operation.roleId,
-    //     relation: 'member',
-    //     subject: userId
-    //   }
-    // }))
-    // await h.getKetoWriteApi().patchRelationTuples(roleDelta)
 
     // Get the current set of user role assignments
-    const response = await h.getKetoReadApi().getRelationTuples(
-      'role',
-      undefined,
-      'member',
-      userId
-    )
+    const response = await h.getReadRelationshipApi().getRelationships({
+      namespace: 'role',
+      relation: 'member',
+      subjectId: userId
+    })
     const rolesIdList = response?.data.relation_tuples?.map(({ object }) => object)
     const userRoles = new Set(rolesIdList)
 

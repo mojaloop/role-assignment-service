@@ -27,7 +27,7 @@ services:
 
   keto:
     container_name: keto
-    image: oryd/keto:v0.6.0-alpha.1-sqlite
+    image: oryd/keto:v0.12.0
     ports:
       - '4466:4466' # Read port
       - '4467:4467' # Write port
@@ -66,8 +66,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      kafka:
-        condition: service_started
     healthcheck:
       test: wget -q http://localhost:3001/health -O /dev/null || exit 1
       timeout: 20s
@@ -112,25 +110,6 @@ services:
       - mojaloop-net
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql"]
-      timeout: 20s
-      retries: 10
-      start_period: 40s
-      interval: 30s
-
-  kafka:
-    image: johnnypark/kafka-zookeeper:2.3.0
-    container_name: kafka
-    volumes:
-      - ./docker/kafka/:/opt/kafka_2.12-2.3.0/config/
-    ports:
-      - "2181:2181"
-      - "9092:9092"
-    environment:
-      - ZOO_LOG4J_PROP=WARN
-    networks:
-      - mojaloop-net
-    healthcheck:
-      test: ["CMD" ,"/opt/kafka_2.12-2.3.0/bin/kafka-broker-api-versions.sh","--bootstrap-server","kafka:29092"]
       timeout: 20s
       retries: 10
       start_period: 40s
@@ -193,7 +172,7 @@ services:
       interval: 30s
 
   mysql-keycloak:
-    image: mysql:5.7.41
+    image: mysql:8.3.0
     container_name: mysql-keycloak
     ports:
       - "3306:3306"
