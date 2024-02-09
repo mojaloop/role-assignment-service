@@ -55,7 +55,7 @@ describe('users id participants handler', () => {
           namespace: 'participant',
           object: 'dfsp',
           relation: 'member',
-          subject: 'myTestUserID'
+          subject_id: 'myTestUserID'
         }
       ],
       next_page_token: ''
@@ -65,11 +65,11 @@ describe('users id participants handler', () => {
   describe('GET /users/{ID}/participants', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(() => new keto.ReadApi(
+      getReadRelationshipApi: jest.fn(() => new keto.RelationshipApi(
         undefined,
         Config.ORY_KETO_READ_SERVICE_URL
       )),
-      getKetoWriteApi: jest.fn(),
+      getWriteRelationshipApi: jest.fn(),
       response: jest.fn(() => ({
         code: jest.fn((code: number) => ({
           statusCode: code
@@ -96,9 +96,9 @@ describe('users id participants handler', () => {
 
       expect(response.statusCode).toBe(200)
       expect(axios.request).toHaveBeenCalledWith({
-        headers: expect.any(Object),
+        headers: expect.anything(),
         method: 'GET',
-        url: 'http://keto:4466/relation-tuples?namespace=participant&relation=member&subject=myTestUserID'
+        url: 'http://keto:4466/relation-tuples?namespace=participant&relation=member&subject_id=myTestUserID'
       })
     })
 
@@ -128,8 +128,8 @@ describe('users id participants handler', () => {
   describe('PATCH /users/{ID}/participants', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(),
-      getKetoWriteApi: jest.fn(() => new keto.WriteApi(
+      getReadRelationshipApi: jest.fn(),
+      getWriteRelationshipApi: jest.fn(() => new keto.RelationshipApi(
         undefined,
         Config.ORY_KETO_WRITE_SERVICE_URL
       )),
@@ -171,9 +171,9 @@ describe('users id participants handler', () => {
 
       expect(response.statusCode).toBe(200)
       expect(axios.request).toHaveBeenCalledWith({
-        headers: expect.any(Object),
+        headers: expect.anything(),
         method: 'PATCH',
-        url: 'http://keto:4467/relation-tuples',
+        url: 'http://keto:4467/admin/relation-tuples',
         data: JSON.stringify([
           {
             action: 'insert',
@@ -181,7 +181,7 @@ describe('users id participants handler', () => {
               namespace: 'participant',
               object: 'dfspa',
               relation: 'member',
-              subject: 'myTestUserID'
+              subject_id: 'myTestUserID'
             }
           },
           {
@@ -190,7 +190,7 @@ describe('users id participants handler', () => {
               namespace: 'participant',
               object: 'dfspb',
               relation: 'member',
-              subject: 'myTestUserID'
+              subject_id: 'myTestUserID'
             }
           }
         ])

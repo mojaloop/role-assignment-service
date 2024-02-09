@@ -55,7 +55,7 @@ describe('users id roles handler', () => {
           namespace: 'role',
           object: 'admin',
           relation: 'member',
-          subject: 'myTestUserID'
+          subject_id: 'myTestUserID'
         }
       ],
       next_page_token: ''
@@ -65,11 +65,11 @@ describe('users id roles handler', () => {
   describe('GET /users/{ID}/roles', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(() => new keto.ReadApi(
+      getReadRelationshipApi: jest.fn(() => new keto.RelationshipApi(
         undefined,
         Config.ORY_KETO_READ_SERVICE_URL
       )),
-      getKetoWriteApi: jest.fn(),
+      getWriteRelationshipApi: jest.fn(),
       response: jest.fn(() => ({
         code: jest.fn((code: number) => ({
           statusCode: code
@@ -96,9 +96,9 @@ describe('users id roles handler', () => {
 
       expect(response.statusCode).toBe(200)
       expect(axios.request).toHaveBeenCalledWith({
-        headers: expect.any(Object),
+        headers: expect.anything(),
         method: 'GET',
-        url: 'http://keto:4466/relation-tuples?namespace=role&relation=member&subject='
+        url: 'http://keto:4466/relation-tuples?namespace=role&relation=member&subject_id='
       })
     })
 
@@ -128,11 +128,11 @@ describe('users id roles handler', () => {
   describe('PATCH /users/{ID}/roles', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(() => new keto.ReadApi(
+      getReadRelationshipApi: jest.fn(() => new keto.RelationshipApi(
         undefined,
         Config.ORY_KETO_READ_SERVICE_URL
       )),
-      getKetoWriteApi: jest.fn(() => new keto.WriteApi(
+      getWriteRelationshipApi: jest.fn(() => new keto.RelationshipApi(
         undefined,
         Config.ORY_KETO_WRITE_SERVICE_URL
       )),

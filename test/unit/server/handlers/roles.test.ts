@@ -48,8 +48,8 @@ describe('roles handler', () => {
   describe('GET /roles', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(),
-      getKetoWriteApi: jest.fn(),
+      getReadRelationshipApi: jest.fn(),
+      getWriteRelationshipApi: jest.fn(),
       response: jest.fn(() => ({
         code: jest.fn((code: number) => ({
           statusCode: code
