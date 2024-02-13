@@ -77,6 +77,7 @@ export interface ServiceConfig {
     };
   };
   ROLES_LIST: string[];
+  AUTO_GRANT_PORTAL_ADMIN_ROLES: string[];
   CORS_WHITELIST: string[];
   ALLOW_CREDENTIALS: boolean;
 }

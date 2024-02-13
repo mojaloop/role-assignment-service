@@ -26,6 +26,7 @@
     "standard": "echo '\\033[1;33m  This project uses eslint instead of standard. Use `npm run lint` instead.'",
     "start:api": "ts-node -r tsconfig-paths/register -P ./tsconfig.json ./src/cli.ts api",
     "start:event": "ts-node -r tsconfig-paths/register -P ./tsconfig.json ./src/cli.ts event",
+    "start:autogrant": "ts-node -r tsconfig-paths/register -P ./tsconfig.json ./src/cli.ts autogrant",
     "start": "ts-node -r tsconfig-paths/register -P ./tsconfig.json ./src/cli.ts all",
     "test:bdd": "jest --config './jest.bdd.config.js' --runInBand --testMatch '**/test/step-definitions/**/*.step.ts'",
     "test:coverage-check": "jest -w 1 --coverage --testMatch '**/test/unit/**/*.(test|spec).ts'",

@@ -30,14 +30,10 @@
 
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
-// import { PatchDelta } from '@ory/keto-client'
-import axios, { AxiosError } from 'axios'
 import Config from '~/shared/config'
+import { PatchOperation, patchRolesForUserId } from '~/shared/userRoleAssignment';
 
-interface PatchOperation {
-  roleId: string;
-  action: 'insert' | 'delete';
-}
+
 interface UserIDRolesPatchRequest {
   roleOperations: PatchOperation[];
 }
@@ -66,40 +62,10 @@ const patch = async (_context: unknown, request: Request, h: StateResponseToolki
     const userId = request.params.ID
     const payload = request.payload as UserIDRolesPatchRequest
 
-    // Get the current set of user role assignments
-    const response = await h.getReadRelationshipApi().getRelationships({
-      namespace: 'role',
-      relation: 'member',
-      subjectId: userId
+    await patchRolesForUserId(userId, payload.roleOperations, {
+      readRelationshipApi: h.getReadRelationshipApi(),
+      config: Config
     })
-    const rolesIdList = response?.data.relation_tuples?.map(({ object }) => object)
-    const userRoles = new Set(rolesIdList)
-
-    // Calculate the resultant set of user role assignments
-    payload.roleOperations.forEach(roleOperation => {
-      if (roleOperation.action === 'insert') {
-        if (!userRoles.has(roleOperation.roleId)) {
-          userRoles.add(roleOperation.roleId)
-        }
-      } else if (roleOperation.action === 'delete') {
-        userRoles.delete(roleOperation.roleId)
-      }
-    })
-
-    // Call the operator API
-    const updatePayload = {
-      username: userId,
-      roles: Array.from(userRoles.values())
-    }
-    try {
-      await axios.post(Config.ROLE_OPERATOR_SERVICE_URL + '/assignment/user-role', updatePayload)
-    } catch (err) {
-      if ((<AxiosError>err).isAxiosError && (<AxiosError>err).response?.data.errors) {
-        throw new Error((<AxiosError>err).response?.data.errors.join(', '))
-      } else {
-        throw (err)
-      }
-    }
 
     // NOTE: return a 200 or 204 here?
     return h.response().code(200)

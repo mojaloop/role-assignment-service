@@ -19,6 +19,9 @@
   "KEYCLOAK_PASSWORD": "admin",
   "KEYCLOAK_REALM": "master",
   "KEYCLOAK_REFRESH_INTERVAL": 58000,
+  "AUTO_GRANT_PORTAL_ADMIN_ROLES": [
+    "manager"
+  ],
   "ERROR_HANDLING": {
     "includeCauseExtension": true,
     "truncateExtensions": true
