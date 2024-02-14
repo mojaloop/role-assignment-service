@@ -12,11 +12,16 @@ services:
       context: .
       cache_from:
         - mojaloop/role-assignment-service
+    deploy:
+      mode: replicated
+      replicas: 1
     ports:
       - "3008:3008"
     networks:
       - mojaloop-net
     depends_on:
+      moja-role-operator:
+        condition: service_healthy
       keycloak:
         condition: service_healthy
     healthcheck:
@@ -117,8 +122,6 @@ services:
 
   moja-role-operator:
     image: mojaloop/security-role-perm-operator-svc:v2.0.0
-    logging:
-      driver: "none"
     container_name: moja-role-operator
     ports:
       - "23001:3001"
@@ -129,8 +132,6 @@ services:
     networks:
       - mojaloop-net
     depends_on:
-      role-assignment-service:
-        condition: service_healthy
       keto:
         condition: service_started
     user: root

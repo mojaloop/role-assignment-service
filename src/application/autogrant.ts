@@ -31,59 +31,58 @@
 import { ServiceConfig } from '../shared/config'
 import * as keto from '@ory/keto-client'
 import {
-    Logger as SDKLogger
+  Logger as SDKLogger
 } from '@mojaloop/sdk-standard-components'
-import { patchRolesForUserId, PatchOperationActionEnum } from '~/shared/userRoleAssignment';
-import { KeycloakClientFactory } from '~/shared/keycloakClientFactory';
-import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth';
+import { patchRolesForUserId, PatchOperationActionEnum } from '~/shared/userRoleAssignment'
+import { KeycloakClientFactory } from '~/shared/keycloakClientFactory'
+import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth'
 
 // This is hardcoded intentionally to minimize the security risk
 const PORTAL_ADMIN_USER = 'portal_admin'
 
 export class AutoGrant {
-    static async start (config: ServiceConfig, logger: SDKLogger.Logger): Promise<void> {
-        try {
-            const kcAdminClient = await KeycloakClientFactory.createKeycloakClient(config)
-            const credentials: Credentials = {
-                username: config.KEYCLOAK_USER,
-                password: config.KEYCLOAK_PASSWORD,
-                grantType: 'password',
-                clientId: 'admin-cli'
-            }
-            // Authorize with username / password
-            await kcAdminClient.auth(credentials)
-    
-            const keycloakUsers = await kcAdminClient.users.find({
-                username: PORTAL_ADMIN_USER
-            })
-            if (!keycloakUsers || keycloakUsers.length === 0) {
-                throw new Error('portal_admin user not found')
-            }
-            if (keycloakUsers.length > 1) {
-                throw new Error('multiple portal_admin users found')
-            }
-    
-            if (keycloakUsers[0].id) {
-                const portalAdminUserId = keycloakUsers[0].id
-                const roleOperations = config.AUTO_GRANT_PORTAL_ADMIN_ROLES.map(roleId => {
-                    return {
-                        action: PatchOperationActionEnum.INSERT,
-                        roleId
-                    }
-                })
-    
-                const oryKetoReadRelationshipApi = new keto.RelationshipApi(
-                    undefined,
-                    config.ORY_KETO_READ_SERVICE_URL
-                )
-                await patchRolesForUserId(portalAdminUserId, roleOperations, {
-                    readRelationshipApi: oryKetoReadRelationshipApi,
-                    config
-                })
-            }
-        
-        } catch (e: any) {
-            logger.error(`Error while auto granting permissions ${e.message}`)
-        }
+  static async start (config: ServiceConfig, logger: SDKLogger.Logger): Promise<void> {
+    try {
+      const kcAdminClient = await KeycloakClientFactory.createKeycloakClient(config)
+      const credentials: Credentials = {
+        username: config.KEYCLOAK_USER,
+        password: config.KEYCLOAK_PASSWORD,
+        grantType: 'password',
+        clientId: 'admin-cli'
+      }
+      // Authorize with username / password
+      await kcAdminClient.auth(credentials)
+
+      const keycloakUsers = await kcAdminClient.users.find({
+        username: PORTAL_ADMIN_USER
+      })
+      if (!keycloakUsers || keycloakUsers.length === 0) {
+        throw new Error('portal_admin user not found')
+      }
+      if (keycloakUsers.length > 1) {
+        throw new Error('multiple portal_admin users found')
+      }
+
+      if (keycloakUsers[0].id) {
+        const portalAdminUserId = keycloakUsers[0].id
+        const roleOperations = config.AUTO_GRANT_PORTAL_ADMIN_ROLES.map(roleId => {
+          return {
+            action: PatchOperationActionEnum.INSERT,
+            roleId
+          }
+        })
+
+        const oryKetoReadRelationshipApi = new keto.RelationshipApi(
+          undefined,
+          config.ORY_KETO_READ_SERVICE_URL
+        )
+        await patchRolesForUserId(portalAdminUserId, roleOperations, {
+          readRelationshipApi: oryKetoReadRelationshipApi,
+          config
+        })
+      }
+    } catch (e: any) {
+      logger.error(`Error while auto granting permissions ${e.message}`)
     }
+  }
 }

@@ -30,7 +30,7 @@
 
 import { ServiceConfig } from '../shared/config'
 import KcAdminClient from '@keycloak/keycloak-admin-client'
-import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth';
+import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth'
 
 export class KeycloakClientFactory {
   static async createKeycloakClient (config: ServiceConfig): Promise<KcAdminClient> {

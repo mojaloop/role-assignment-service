@@ -28,4 +28,4 @@
  --------------
  ******/
 
-export * from './autogrant';
+export * from './autogrant'
