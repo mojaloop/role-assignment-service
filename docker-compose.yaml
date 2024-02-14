@@ -121,7 +121,7 @@ services:
       interval: 30s
 
   moja-role-operator:
-    image: mojaloop/security-role-perm-operator-svc:v2.0.0
+    image: mojaloop/security-role-perm-operator-svc:v2.1.6
     container_name: moja-role-operator
     ports:
       - "23001:3001"
