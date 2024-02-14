@@ -1,5 +1,3 @@
-#!./node_modules/.bin/ts-node
-
 /*****
  License
  --------------
@@ -25,10 +23,21 @@
  * Gates Foundation
  - Name Surname <name.surname@gatesfoundation.com>
 
- - Kevin Leyow <kevin.leyow@modusbox.com>
+ - Vijaya Kumar Guthi <vijaya.guthi@infitx.com>
+
  --------------
  ******/
 
-import { startProgram } from './cli-utils'
+import { ServiceConfig } from '../shared/config'
+import KcAdminClient from '@keycloak/keycloak-admin-client'
+import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth';
 
-startProgram(process.argv)
+export class KeycloakClientFactory {
+  static async createKeycloakClient (config: ServiceConfig): Promise<KcAdminClient> {
+    const kcAdminClient = new KcAdminClient({
+      baseUrl: config.KEYCLOAK_URL,
+      realmName: config.KEYCLOAK_REALM
+    })
+    return kcAdminClient
+  }
+}

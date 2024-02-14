@@ -29,24 +29,21 @@
  ******/
 
 import { ServiceConfig } from '../shared/config'
-import KcAdminClient from '@keycloak/keycloak-admin-client'
-import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth';
 import * as keto from '@ory/keto-client'
 import {
     Logger as SDKLogger
 } from '@mojaloop/sdk-standard-components'
 import { patchRolesForUserId, PatchOperationActionEnum } from '~/shared/userRoleAssignment';
+import { KeycloakClientFactory } from '~/shared/keycloakClientFactory';
+import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth';
 
 // This is hardcoded intentionally to minimize the security risk
 const PORTAL_ADMIN_USER = 'portal_admin'
 
-export const AutoGrant = {
-    async start(config: ServiceConfig, logger: SDKLogger.Logger): Promise<void> {
+export class AutoGrant {
+    static async start (config: ServiceConfig, logger: SDKLogger.Logger): Promise<void> {
         try {
-            const kcAdminClient = new KcAdminClient({
-                baseUrl: config.KEYCLOAK_URL,
-                realmName: config.KEYCLOAK_REALM
-            })
+            const kcAdminClient = await KeycloakClientFactory.createKeycloakClient(config)
             const credentials: Credentials = {
                 username: config.KEYCLOAK_USER,
                 password: config.KEYCLOAK_PASSWORD,
@@ -55,17 +52,17 @@ export const AutoGrant = {
             }
             // Authorize with username / password
             await kcAdminClient.auth(credentials)
-
+    
             const keycloakUsers = await kcAdminClient.users.find({
                 username: PORTAL_ADMIN_USER
             })
             if (!keycloakUsers || keycloakUsers.length === 0) {
-              throw new Error('portal_admin user not found')
+                throw new Error('portal_admin user not found')
             }
             if (keycloakUsers.length > 1) {
-              throw new Error('multiple portal_admin users found')
+                throw new Error('multiple portal_admin users found')
             }
-
+    
             if (keycloakUsers[0].id) {
                 const portalAdminUserId = keycloakUsers[0].id
                 const roleOperations = config.AUTO_GRANT_PORTAL_ADMIN_ROLES.map(roleId => {
@@ -84,9 +81,9 @@ export const AutoGrant = {
                     config
                 })
             }
-      
+        
         } catch (e: any) {
             logger.error(`Error while auto granting permissions ${e.message}`)
         }
-    },
-};
+    }
+}

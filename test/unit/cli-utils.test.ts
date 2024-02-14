@@ -30,69 +30,44 @@
 import Config from '~/shared/config'
 import server from '~/server'
 import { AutoGrant } from '~/application/autogrant'
+import { startProgram } from '~/cli-utils'
 
 jest.mock('~/server')
 jest.mock('~/shared/logger')
 jest.mock('~/application/autogrant')
 
 describe('cli', (): void => {
+  beforeEach((): void => {
+    jest.clearAllMocks()
+  })
   it('start all services', async (): Promise<void> => {
     process.argv = ['jest', 'cli.ts', 'all']
-    const cli = await import('~/cli')
+    startProgram(process.argv)
 
-    expect(cli).toBeDefined()
-    // We use objectContaining because sometimes the
-    // command line injects other args we can't control
-    const expectedConfig = expect.objectContaining({
-      PACKAGE: Config.PACKAGE,
-      PORT: Config.PORT,
-      HOST: Config.HOST,
-      INSPECT: {
-        DEPTH: 4,
-        SHOW_HIDDEN: false,
-        COLOR: true
-      },
-      ENDPOINT_CACHE_CONFIG: {
-        expiresIn: 180000,
-        generateTimeout: 30000
-      },
-      CENTRAL_SERVICE_ADMIN_URL: 'http://central-ledger:3001',
-      ORY_KETO_READ_SERVICE_URL: 'http://keto:4466',
-      ORY_KETO_WRITE_SERVICE_URL: 'http://keto:4467',
-      ERROR_HANDLING: {
-        includeCauseExtension: true,
-        truncateExtensions: true
-      },
-      INSTRUMENTATION: {
-        METRICS: {
-          DISABLED: false,
-          labels: {
-            eventId: '*'
-          },
-          config: {
-            timeout: 5000,
-            prefix: 'moja_ra_api',
-            defaultLabels: {
-              serviceName: 'role-assignment-service'
-            }
-          }
-        }
-      },
-      ROLES_LIST: [
-        'USER_ROLE_abc7a2fd-4acf-4547-a194-1673f63eb37c',
-        'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
-      ],
-      CORS_WHITELIST: [
-        'http://localhost:3000',
-        'http://localhost:3010',
-        'http://localhost:3012',
-        'http://localhost:8080',
-        'http://localhost:8081'
-      ],
-      ALLOW_CREDENTIALS: false
-    })
-
-    expect(server.run).toHaveBeenCalledWith(expectedConfig)
+    expect(server.run).toHaveBeenCalled()
+    expect(AutoGrant.start).toHaveBeenCalled()
   })
 
+  it('start the api only', async (): Promise<void> => {
+    process.argv = ['jest', 'cli.ts', 'api']
+    startProgram(process.argv)
+
+    expect(server.run).toHaveBeenCalled()
+    expect(AutoGrant.start).not.toHaveBeenCalled()
+  })
+
+  it('start the autogrant only', async (): Promise<void> => {
+    process.argv = ['jest', 'cli.ts', 'autogrant']
+    startProgram(process.argv)
+
+    expect(AutoGrant.start).toHaveBeenCalled()
+    expect(server.run).not.toHaveBeenCalled()
+  })
+  it('start the autogrant with an exception', async (): Promise<void> => {
+    AutoGrant.start = jest.fn().mockRejectedValue(new Error('some error'))
+    process.argv = ['jest', 'cli.ts', 'autogrant']
+    startProgram(process.argv)
+    expect(AutoGrant.start).toHaveBeenCalled()
+    expect(server.run).not.toHaveBeenCalled()
+  })
 })

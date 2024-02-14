@@ -37,6 +37,7 @@ import * as keto from '@ory/keto-client'
 import Config from '~/shared/config'
 import KcAdminClient from '@keycloak/keycloak-admin-client'
 import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth'
+import { KeycloakClientFactory } from '~/shared/keycloakClientFactory'
 
 export interface StateResponseToolkit extends ResponseToolkit {
   getLogger: () => SDKLogger.Logger
@@ -58,12 +59,7 @@ export const StatePlugin = {
       undefined,
       Config.ORY_KETO_WRITE_SERVICE_URL
     )
-    const kcAdminClient = new KcAdminClient(
-      {
-        baseUrl: Config.KEYCLOAK_URL,
-        realmName: Config.KEYCLOAK_REALM
-      }
-    )
+    const kcAdminClient = await KeycloakClientFactory.createKeycloakClient(Config)
     const credentials: Credentials = {
       username: Config.KEYCLOAK_USER,
       password: Config.KEYCLOAK_PASSWORD,

@@ -64,7 +64,7 @@ const defaultMockConfig: ServiceConfig = {
     'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
   ],
   AUTO_GRANT_PORTAL_ADMIN_ROLES: [
-    "manager"
+    'manager'
   ],
   CORS_WHITELIST: [],
   ALLOW_CREDENTIALS: false
