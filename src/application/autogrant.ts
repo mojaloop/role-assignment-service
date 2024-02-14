@@ -81,7 +81,7 @@ export class AutoGrant {
           config
         })
       }
-    } catch (e: any) {
+    } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
       logger.error(`Error while auto granting permissions ${e.message}`)
     }
   }

@@ -48,7 +48,10 @@ export type PatchOperation = {
   action: PatchOperationActionEnum;
 }
 
-export async function patchRolesForUserId (userId: string, roleOperations: PatchOperation[], options: AssignRoleToUserIdOptions): Promise<void> {
+export async function patchRolesForUserId (
+  userId: string,
+  roleOperations: PatchOperation[],
+  options: AssignRoleToUserIdOptions): Promise<void> {
   // Get the current set of user role assignments
   const response = await options.readRelationshipApi.getRelationships({
     namespace: 'role',
