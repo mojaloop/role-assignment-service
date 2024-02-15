@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/mojaloop/role-assignment-service/compare/v2.0.0...v2.1.0) (2024-02-15)
+
+
+### Features
+
+* added auto grant functionality ([163e8d9](https://github.com/mojaloop/role-assignment-service/commit/163e8d95ca1958c4efc7647de287d35b0b40e199))
+
+
+### Bug Fixes
+
+* audit ([5fc1745](https://github.com/mojaloop/role-assignment-service/commit/5fc1745170256291d2ff47cacc6c20d277c973c5))
+* int tests ([bdd81a0](https://github.com/mojaloop/role-assignment-service/commit/bdd81a0664f95aad244b654266bf6f1ef5009e9c))
+* lint ([a9931b7](https://github.com/mojaloop/role-assignment-service/commit/a9931b708e15429088a4cbb7c8db96e7f4d150b7))
+* unit tests ([8f4749d](https://github.com/mojaloop/role-assignment-service/commit/8f4749d7f782bdcdfb26effb3cf904787036b9e8))
+* unit tests ([3251877](https://github.com/mojaloop/role-assignment-service/commit/3251877bc19cb4ed8bcc121e744c7df513ae0a4c))
+* unit tests ([58f3447](https://github.com/mojaloop/role-assignment-service/commit/58f34471b68adea950fa4f1f0b6f1a05722ddc6c))
+
+
+### Chore
+
+* addressed pr comments ([6bbbdf3](https://github.com/mojaloop/role-assignment-service/commit/6bbbdf3956bbaae7940910da4ae6e96e15631249))
+* dep updates ([3428b91](https://github.com/mojaloop/role-assignment-service/commit/3428b91452536f3b43cb73bc4e7fa6f96a6590e2))
+* update deps ([086079a](https://github.com/mojaloop/role-assignment-service/commit/086079aeca31d1c13bae66d1444422b86bb93ed3))
+* update operator ([0f81164](https://github.com/mojaloop/role-assignment-service/commit/0f81164e93da9dfd0fa3107dd6e77234ae881c32))
+
 ## [2.0.0](https://github.com/mojaloop/role-assignment-service/compare/v1.0.2...v2.0.0) (2024-02-02)
 
 
