@@ -30,11 +30,11 @@
 
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
-import { RelationshipPatch } from '@ory/keto-client'
+import { RelationshipPatch, RelationshipPatchActionEnum } from '@ory/keto-client'
 
 interface PatchOperation {
   participantId: string;
-  action: 'insert' | 'delete';
+  action: RelationshipPatchActionEnum;
 }
 interface UserIDParticipantsPatchRequest {
   participantOperations: PatchOperation[];

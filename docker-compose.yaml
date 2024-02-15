@@ -32,7 +32,7 @@ services:
 
   keto:
     container_name: keto
-    image: oryd/keto:v0.12.0
+    image: oryd/keto:v0.11.0
     ports:
       - '4466:4466' # Read port
       - '4467:4467' # Write port
@@ -121,7 +121,7 @@ services:
       interval: 30s
 
   moja-role-operator:
-    image: mojaloop/security-role-perm-operator-svc:v2.1.9-snapshot.0
+    image: mojaloop/security-role-perm-operator-svc:v2.1.9
     container_name: moja-role-operator
     ports:
       - "23001:3001"

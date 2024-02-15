@@ -33,7 +33,7 @@ import * as keto from '@ory/keto-client'
 import {
   Logger as SDKLogger
 } from '@mojaloop/sdk-standard-components'
-import { patchRolesForUserId, PatchOperationActionEnum } from '~/shared/userRoleAssignment'
+import { patchRolesForUserId } from '~/shared/userRoleAssignment'
 import { KeycloakClientFactory } from '~/shared/keycloakClientFactory'
 import { Credentials } from '@keycloak/keycloak-admin-client/lib/utils/auth'
 
@@ -48,7 +48,7 @@ export class AutoGrant {
         username: config.KEYCLOAK_USER,
         password: config.KEYCLOAK_PASSWORD,
         grantType: 'password',
-        clientId: 'admin-cli'
+        clientId: config.KEYCLOAK_CLIENT_ID
       }
       // Authorize with username / password
       await kcAdminClient.auth(credentials)
@@ -67,7 +67,7 @@ export class AutoGrant {
         const portalAdminUserId = keycloakUsers[0].id
         const roleOperations = config.AUTO_GRANT_PORTAL_ADMIN_ROLES.map(roleId => {
           return {
-            action: PatchOperationActionEnum.INSERT,
+            action: keto.RelationshipPatchActionEnum.Insert,
             roleId
           }
         })
@@ -82,7 +82,7 @@ export class AutoGrant {
         })
       }
     } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-      logger.error(`Error while auto granting permissions ${e.message}`)
+      logger.error(`Error while auto granting permissions ${e?.message}`)
     }
   }
 }

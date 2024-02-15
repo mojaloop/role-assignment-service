@@ -18,6 +18,7 @@
   "KEYCLOAK_USER": "admin",
   "KEYCLOAK_PASSWORD": "admin",
   "KEYCLOAK_REALM": "master",
+  "KEYCLOAK_CLIENT_ID": "admin-cli",
   "KEYCLOAK_REFRESH_INTERVAL": 58000,
   "AUTO_GRANT_PORTAL_ADMIN_ROLES": [
     "manager"

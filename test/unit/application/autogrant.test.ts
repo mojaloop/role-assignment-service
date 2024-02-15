@@ -33,7 +33,7 @@ import * as keto from '@ory/keto-client'
 import { logger } from '~/shared/logger'
 import Config from '~/shared/config'
 import { AutoGrant } from '~/application'
-import { patchRolesForUserId, PatchOperationActionEnum } from '~/shared/userRoleAssignment';
+import { patchRolesForUserId } from '~/shared/userRoleAssignment';
 import { Users } from '@keycloak/keycloak-admin-client/lib/resources/users'
 
 jest.mock('@keycloak/keycloak-admin-client')

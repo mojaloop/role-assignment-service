@@ -38,14 +38,9 @@ export type AssignRoleToUserIdOptions = {
   // logger: SDKLogger.Logger;
 }
 
-export enum PatchOperationActionEnum {
-  INSERT = 'insert',
-  DELETE = 'delete'
-}
-
 export type PatchOperation = {
   roleId: string;
-  action: PatchOperationActionEnum;
+  action: keto.RelationshipPatchActionEnum;
 }
 
 export async function patchRolesForUserId (
@@ -63,11 +58,11 @@ export async function patchRolesForUserId (
 
   // Calculate the resultant set of user role assignments
   roleOperations.forEach(roleOperation => {
-    if (roleOperation.action === 'insert') {
+    if (roleOperation.action === keto.RelationshipPatchActionEnum.Insert) {
       if (!userRoles.has(roleOperation.roleId)) {
         userRoles.add(roleOperation.roleId)
       }
-    } else if (roleOperation.action === 'delete') {
+    } else if (roleOperation.action === keto.RelationshipPatchActionEnum.Delete) {
       userRoles.delete(roleOperation.roleId)
     }
   })

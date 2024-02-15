@@ -64,7 +64,7 @@ export const StatePlugin = {
       username: Config.KEYCLOAK_USER,
       password: Config.KEYCLOAK_PASSWORD,
       grantType: 'password',
-      clientId: 'admin-cli'
+      clientId: Config.KEYCLOAK_CLIENT_ID
     }
     // Authorize with username / password
     await kcAdminClient.auth(credentials)
