@@ -57,6 +57,7 @@ export interface ServiceConfig {
   KEYCLOAK_URL: string;
   KEYCLOAK_USER: string;
   KEYCLOAK_PASSWORD: string;
+  KEYCLOAK_CLIENT_ID: string;
   KEYCLOAK_REALM: string;
   KEYCLOAK_REFRESH_INTERVAL: number;
   ERROR_HANDLING: {
@@ -77,6 +78,7 @@ export interface ServiceConfig {
     };
   };
   ROLES_LIST: string[];
+  AUTO_GRANT_PORTAL_ADMIN_ROLES: string[];
   CORS_WHITELIST: string[];
   ALLOW_CREDENTIALS: boolean;
 }

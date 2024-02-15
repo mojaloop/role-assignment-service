@@ -17,11 +17,11 @@ module.exports = {
 
       // list of services to wait for
       wait4: [
-        {
-          description: 'Kafka broker',
-          uri: 'kafka:29092',
-          method: 'ncat'
-        },
+        // {
+        //   description: 'Kafka broker',
+        //   uri: 'kafka:29092',
+        //   method: 'ncat'
+        // },
         // {
         //   description: 'MySQL ledger',
         //   uri: 'mysql:3306',

@@ -49,8 +49,8 @@ describe('users handler', () => {
     const mockAuth: jest.Mock = jest.fn()
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(),
-      getKetoWriteApi: jest.fn(),
+      getReadRelationshipApi: jest.fn(),
+      getWriteRelationshipApi: jest.fn(),
       getKeycloakAdmin: jest.fn().mockImplementation(() => ({
         auth: mockAuth,
         users: {

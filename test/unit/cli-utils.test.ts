@@ -24,55 +24,50 @@
  - Name Surname <name.surname@gatesfoundation.com>
 
  - Kevin Leyow <kevin.leyow@modusbox.com>
-
  --------------
  ******/
 
-import { Request } from '@hapi/hapi'
-import Logger from '@mojaloop/central-services-logger'
-
-import { StateResponseToolkit } from '~/server/plugins/state'
-import RolesHandler from '~/server/handlers/roles'
-import { logger } from '~/shared/logger'
 import Config from '~/shared/config'
+import server from '~/server'
+import { AutoGrant } from '~/application/autogrant'
+import { startProgram } from '~/cli-utils'
 
-const mockLoggerPush = jest.spyOn(Logger, 'push')
-const mockLoggerError = jest.spyOn(Logger, 'error')
+jest.mock('~/server')
+jest.mock('~/shared/logger')
+jest.mock('~/application/autogrant')
 
-describe('roles handler', () => {
+describe('cli', (): void => {
   beforeEach((): void => {
-    mockLoggerPush.mockReturnValue(null)
-    mockLoggerError.mockReturnValue(null)
+    jest.clearAllMocks()
+  })
+  it('start all services', async (): Promise<void> => {
+    process.argv = ['jest', 'cli.ts', 'all']
+    startProgram(process.argv)
+
+    expect(server.run).toHaveBeenCalled()
+    expect(AutoGrant.start).toHaveBeenCalled()
   })
 
-  describe('GET /roles', () => {
-    const toolkit = {
-      getLogger: jest.fn(() => logger),
-      getReadRelationshipApi: jest.fn(),
-      getWriteRelationshipApi: jest.fn(),
-      response: jest.fn(() => ({
-        code: jest.fn((code: number) => ({
-          statusCode: code
-        }))
-      }))
-    }
+  it('start the api only', async (): Promise<void> => {
+    process.argv = ['jest', 'cli.ts', 'api']
+    startProgram(process.argv)
 
-    it('handles a successful request', async () => {
-      const request = {
-        method: 'GET',
-        url: '/roles',
-        headers: {}
-      }
+    expect(server.run).toHaveBeenCalled()
+    expect(AutoGrant.start).not.toHaveBeenCalled()
+  })
 
-      const response = await RolesHandler.get(
-        null,
-        request as unknown as Request,
-        toolkit as unknown as StateResponseToolkit)
+  it('start the autogrant only', async (): Promise<void> => {
+    process.argv = ['jest', 'cli.ts', 'autogrant']
+    startProgram(process.argv)
 
-      expect(response.statusCode).toBe(200)
-      expect(toolkit.response).toBeCalledWith({
-        roles: Config.ROLES_LIST
-      })
-    })
+    expect(AutoGrant.start).toHaveBeenCalled()
+    expect(server.run).not.toHaveBeenCalled()
+  })
+  it('start the autogrant with an exception', async (): Promise<void> => {
+    AutoGrant.start = jest.fn().mockRejectedValue(new Error('some error'))
+    process.argv = ['jest', 'cli.ts', 'autogrant']
+    startProgram(process.argv)
+    expect(AutoGrant.start).toHaveBeenCalled()
+    expect(server.run).not.toHaveBeenCalled()
   })
 })

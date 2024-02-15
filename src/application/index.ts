@@ -1,5 +1,3 @@
-#!./node_modules/.bin/ts-node
-
 /*****
  License
  --------------
@@ -25,10 +23,9 @@
  * Gates Foundation
  - Name Surname <name.surname@gatesfoundation.com>
 
- - Kevin Leyow <kevin.leyow@modusbox.com>
+ - Vijaya Kumar Guthi <vijaya.guthi@infitx.com>
+
  --------------
  ******/
 
-import { startProgram } from './cli-utils'
-
-startProgram(process.argv)
+export * from './autogrant'

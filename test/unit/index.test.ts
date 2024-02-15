@@ -162,7 +162,7 @@ describe('index', (): void => {
               namespace: 'participant',
               object: 'dfsp',
               relation: 'member',
-              subject: 'myTestUserID'
+              subject_id: 'myTestUserID'
             }
           ],
           next_page_token: ''
@@ -182,9 +182,9 @@ describe('index', (): void => {
         expect(response.statusCode).toBe(200)
         expect(response.result).toEqual({ participants: ['dfsp'] })
         expect(axios.request).toHaveBeenCalledWith({
-          headers: expect.any(Object),
+          headers: expect.anything(),
           method: 'GET',
-          url: 'http://keto:4466/relation-tuples?namespace=participant&relation=member&subject=myTestUserID'
+          url: 'http://keto:4466/relation-tuples?namespace=participant&relation=member&subject_id=myTestUserID'
         })
       })
 
@@ -211,9 +211,9 @@ describe('index', (): void => {
         const response = await server.inject(request)
         expect(response.statusCode).toBe(200)
         expect(axios.request).toHaveBeenCalledWith({
-          headers: expect.any(Object),
+          headers: expect.anything(),
           method: 'PATCH',
-          url: 'http://keto:4467/relation-tuples',
+          url: 'http://keto:4467/admin/relation-tuples',
           data: JSON.stringify([
             {
               action: 'insert',
@@ -221,7 +221,7 @@ describe('index', (): void => {
                 namespace: 'participant',
                 object: 'dfspa',
                 relation: 'member',
-                subject: 'myTestUserID'
+                subject_id: 'myTestUserID'
               }
             },
             {
@@ -230,7 +230,7 @@ describe('index', (): void => {
                 namespace: 'participant',
                 object: 'dfspb',
                 relation: 'member',
-                subject: 'myTestUserID'
+                subject_id: 'myTestUserID'
               }
             }
           ])
@@ -246,7 +246,7 @@ describe('index', (): void => {
               namespace: 'role',
               object: 'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6',
               relation: 'member',
-              subject: 'myTestUserID'
+              subject_id: 'myTestUserID'
             }
           ],
           next_page_token: ''
@@ -265,9 +265,9 @@ describe('index', (): void => {
         expect(response.statusCode).toBe(200)
         expect(response.result).toEqual({ roles: ['ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'] })
         expect(axios.request).toHaveBeenCalledWith({
-          headers: expect.any(Object),
+          headers: expect.anything(),
           method: 'GET',
-          url: 'http://keto:4466/relation-tuples?namespace=role&relation=member&subject=myTestUserID'
+          url: 'http://keto:4466/relation-tuples?namespace=role&relation=member&subject_id=myTestUserID'
         })
       })
 

@@ -42,6 +42,7 @@ const defaultMockConfig: ServiceConfig = {
   KEYCLOAK_USER: 'admin',
   KEYCLOAK_PASSWORD: 'admin',
   KEYCLOAK_REALM: 'master',
+  KEYCLOAK_CLIENT_ID: 'admin-cli',
   KEYCLOAK_REFRESH_INTERVAL: 58000,
   ERROR_HANDLING: {
     includeCauseExtension: true,
@@ -62,6 +63,9 @@ const defaultMockConfig: ServiceConfig = {
   ROLES_LIST: [
     'USER_ROLE_abc7a2fd-4acf-4547-a194-1673f63eb37c',
     'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
+  ],
+  AUTO_GRANT_PORTAL_ADMIN_ROLES: [
+    'manager'
   ],
   CORS_WHITELIST: [],
   ALLOW_CREDENTIALS: false

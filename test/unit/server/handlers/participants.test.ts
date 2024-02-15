@@ -49,8 +49,8 @@ describe('participants handler', () => {
   describe('GET /participants', () => {
     const toolkit = {
       getLogger: jest.fn(() => logger),
-      getKetoReadApi: jest.fn(),
-      getKetoWriteApi: jest.fn(),
+      getReadRelationshipApi: jest.fn(),
+      getWriteRelationshipApi: jest.fn(),
       response: jest.fn(() => ({
         code: jest.fn((code: number) => ({
           statusCode: code

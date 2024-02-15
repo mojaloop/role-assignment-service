@@ -98,7 +98,8 @@ describe('GET/PATCH /users/{ID}/participants', (): void => {
     const response = await axios.get(scenariosURI)
 
     expect(response.status).toBe(200)
-    expect(response.data).toEqual(expectedResp)
+    expect(response.data).toHaveProperty('participants')
+    expect(response.data.participants.sort()).toEqual(expectedResp.participants.sort())
   })
 })
 
@@ -150,7 +151,8 @@ describe('GET/PATCH /users/{ID}/roles', (): void => {
     const response = await axios.get(scenariosURI)
 
     expect(response.status).toBe(200)
-    expect(response.data).toEqual(expectedResp)
+    expect(response.data).toHaveProperty('roles')
+    expect(response.data.roles.sort()).toEqual(expectedResp.roles.sort())
   })
 })
 
