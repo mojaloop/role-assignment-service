@@ -28,6 +28,7 @@
     "sourceMap": true,
     "rootDir": "./",
     "outDir": "dist",
+    "skipLibCheck": true,
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,

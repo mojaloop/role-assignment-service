@@ -1,7 +1,7 @@
 /*****
  License
  --------------
- Copyright © 2020 Mojaloop Foundation
+ Copyright © 2020-2026 Mojaloop Foundation
  The Mojaloop files are made available by the Mojaloop Foundation under the
  Apache License, Version 2.0 (the 'License') and you may not use these files
  except in compliance with the License. You may obtain a copy of the License at
@@ -12,31 +12,30 @@
  governing permissions and limitations under the License.
  Contributors
  --------------
- This is the official list of the Mojaloop project contributors for this file.
- Names of the original copyright holders (individuals or organizations)
- should be listed with a '*' in the first column. People who have
- contributed from an organization can be listed under the organization
- that actually holds the copyright for their contributions (see the
- Gates Foundation organization for an example). Those individuals should have
- their names indented and be marked with a '-'. Email address can be added
- optionally within square brackets <email>.
- * Gates Foundation
- - Name Surname <name.surname@gatesfoundation.com>
-
- - Kevin Leyow <kevin.leyow@modusbox.com>
-
+ * Mojaloop Foundation
  --------------
  ******/
 
-import Config from '~/shared/config'
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
+import { logThrown } from '~/shared/logger'
 
+/**
+ * The roles a deployment defined, each with the resource names its grants
+ * leave open. A role leaving none is held as it is; a role leaving some is
+ * held once per set of resources an assignment names, and each open name is
+ * the list an operator picks those resources from.
+ */
 const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
-  const response = {
-    roles: Config.ROLES_LIST
+  try {
+    const roles = await h.getIam().roles()
+    return h.response({
+      roles: roles.map((role) => ({ name: role.name, open: role.open }))
+    }).code(200)
+  } catch (e) {
+    logThrown(h.getLogger(), e)
+    return h.response().code(502)
   }
-  return h.response(response).code(200)
 }
 
 export default {

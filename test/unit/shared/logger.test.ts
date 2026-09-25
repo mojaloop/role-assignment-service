@@ -28,15 +28,15 @@
  --------------
  ******/
 
-import { RequestLogged, logResponse, logger, createLogger } from '~/shared/logger'
+import { RequestLogged, logResponse, logger, createLogger, logThrown } from '~/shared/logger'
 import inspect from '~/shared/inspect'
 
 jest.mock('@mojaloop/sdk-standard-components',
   jest.fn(() => ({
     Logger: {
-      Logger: jest.fn(() => ({
+      loggerFactory: jest.fn(() => ({
         push: jest.fn(),
-        configure: jest.fn(),
+        child: jest.fn(),
 
         // log methods
         log: jest.fn(),
@@ -47,10 +47,8 @@ jest.mock('@mojaloop/sdk-standard-components',
         warn: jest.fn(),
         error: jest.fn(),
         trace: jest.fn(),
-        info: jest.fn(),
-        fatal: jest.fn()
-      })),
-      buildStringify: jest.fn()
+        info: jest.fn()
+      }))
     }
   }))
 )
@@ -104,7 +102,7 @@ describe('shared/logger', (): void => {
       const log = createLogger()
       // basic methods
       expect(typeof log.push).toEqual('function')
-      expect(typeof log.configure).toEqual('function')
+      expect(typeof log.child).toEqual('function')
 
       // log methods
       expect(typeof log.log).toEqual('function')
@@ -116,7 +114,17 @@ describe('shared/logger', (): void => {
       expect(typeof log.error).toEqual('function')
       expect(typeof log.trace).toEqual('function')
       expect(typeof log.info).toEqual('function')
-      expect(typeof log.fatal).toEqual('function')
+    })
+  })
+
+  describe('logThrown', () => {
+    it('keeps an Error, and makes a string of anything else', () => {
+      const log = { error: jest.fn() } as unknown as ReturnType<typeof createLogger>
+      const boom = new Error('boom')
+      logThrown(log, boom)
+      logThrown(log, 'not an error')
+      expect(log.error).toHaveBeenNthCalledWith(1, boom)
+      expect(log.error).toHaveBeenNthCalledWith(2, 'not an error')
     })
   })
 
@@ -124,7 +132,7 @@ describe('shared/logger', (): void => {
     it('should have proper layout', () => {
       // basic methods
       expect(typeof logger.push).toEqual('function')
-      expect(typeof logger.configure).toEqual('function')
+      expect(typeof logger.child).toEqual('function')
 
       // log methods
       expect(typeof logger.log).toEqual('function')
@@ -136,7 +144,6 @@ describe('shared/logger', (): void => {
       expect(typeof logger.error).toEqual('function')
       expect(typeof logger.trace).toEqual('function')
       expect(typeof logger.info).toEqual('function')
-      expect(typeof logger.fatal).toEqual('function')
     })
   })
 })

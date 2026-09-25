@@ -50,16 +50,8 @@ export interface ServiceConfig {
     expiresIn: number;
     generateTimeout: number;
   };
-  CENTRAL_SERVICE_ADMIN_URL: string;
-  ROLE_OPERATOR_SERVICE_URL: string;
-  ORY_KETO_READ_SERVICE_URL: string;
-  ORY_KETO_WRITE_SERVICE_URL: string;
-  KEYCLOAK_URL: string;
-  KEYCLOAK_USER: string;
-  KEYCLOAK_PASSWORD: string;
-  KEYCLOAK_CLIENT_ID: string;
-  KEYCLOAK_REALM: string;
-  KEYCLOAK_REFRESH_INTERVAL: number;
+  IAM_SERVICE_URL: string;
+  ORY_KRATOS_ADMIN_SERVICE_URL: string;
   ERROR_HANDLING: {
     includeCauseExtension: boolean;
     truncateExtensions: boolean;
@@ -77,8 +69,6 @@ export interface ServiceConfig {
       };
     };
   };
-  ROLES_LIST: string[];
-  AUTO_GRANT_PORTAL_ADMIN_ROLES: string[];
   CORS_WHITELIST: string[];
   ALLOW_CREDENTIALS: boolean;
 }

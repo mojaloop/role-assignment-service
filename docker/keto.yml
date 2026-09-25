@@ -1,15 +1,13 @@
-version: v0.6.0-alpha.1
+version: v0.12.0
 
 log:
-  level: debug
+  level: info
 
+# Staged models are one concatenated file: Keto parses each location file
+# self-contained, and a directory of bundle files silently drops all but one
+# file when the shared User/Role stubs duplicate
 namespaces:
-  - id: 0
-    name: participant
-  - id: 1
-    name: role
-  - id: 2
-    name: permission
+  location: file:///etc/keto-namespaces/keto-namespaces.ts
 
 dsn: memory
 

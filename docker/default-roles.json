@@ -1,0 +1,23 @@
+{
+  "roles": {
+    "iam-admin": {
+      "grants": [
+        { "permission": "iam.UsersGet" },
+        { "permission": "iam.UsersIDGet" },
+        { "permission": "iam.RolesGet" },
+        { "permission": "iam.ResourcesGet" },
+        { "permission": "iam.UsersIDAssignmentsGet" },
+        { "permission": "iam.UsersIDAssignmentsPatch" }
+      ]
+    },
+    "iam-auditor": {
+      "grants": [
+        { "permission": "iam.UsersGet" },
+        { "permission": "iam.UsersIDGet" },
+        { "permission": "iam.RolesGet" },
+        { "permission": "iam.ResourcesGet" },
+        { "permission": "iam.UsersIDAssignmentsGet" }
+      ]
+    }
+  }
+}

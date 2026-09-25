@@ -29,11 +29,9 @@
 
 import Config from '~/shared/config'
 import server from '~/server'
-import { AutoGrant } from '~/application/autogrant'
 
 jest.mock('~/server')
 jest.mock('~/shared/logger')
-jest.mock('~/application/autogrant')
 
 describe('cli', (): void => {
   it('start all services', async (): Promise<void> => {
@@ -56,9 +54,8 @@ describe('cli', (): void => {
         expiresIn: 180000,
         generateTimeout: 30000
       },
-      CENTRAL_SERVICE_ADMIN_URL: 'http://central-ledger:3001',
-      ORY_KETO_READ_SERVICE_URL: 'http://keto:4466',
-      ORY_KETO_WRITE_SERVICE_URL: 'http://keto:4467',
+      IAM_SERVICE_URL: 'http://iam-provisioning:3003',
+      ORY_KRATOS_ADMIN_SERVICE_URL: 'http://kratos:4434',
       ERROR_HANDLING: {
         includeCauseExtension: true,
         truncateExtensions: true
@@ -78,10 +75,6 @@ describe('cli', (): void => {
           }
         }
       },
-      ROLES_LIST: [
-        'USER_ROLE_abc7a2fd-4acf-4547-a194-1673f63eb37c',
-        'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
-      ],
       CORS_WHITELIST: [
         'http://localhost:3000',
         'http://localhost:3010',

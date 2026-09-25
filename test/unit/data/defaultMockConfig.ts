@@ -34,16 +34,8 @@ const defaultMockConfig: ServiceConfig = {
     expiresIn: 5000,
     generateTimeout: 5000
   },
-  CENTRAL_SERVICE_ADMIN_URL: 'central-ledger',
-  ROLE_OPERATOR_SERVICE_URL: 'http://moja-role-operator:3001',
-  ORY_KETO_READ_SERVICE_URL: 'http://keto:4466',
-  ORY_KETO_WRITE_SERVICE_URL: 'http://keto:4467',
-  KEYCLOAK_URL: 'https://keycloak:8080',
-  KEYCLOAK_USER: 'admin',
-  KEYCLOAK_PASSWORD: 'admin',
-  KEYCLOAK_REALM: 'master',
-  KEYCLOAK_CLIENT_ID: 'admin-cli',
-  KEYCLOAK_REFRESH_INTERVAL: 58000,
+  IAM_SERVICE_URL: 'http://iam-provisioning:3003',
+  ORY_KRATOS_ADMIN_SERVICE_URL: 'http://kratos:4434',
   ERROR_HANDLING: {
     includeCauseExtension: true,
     truncateExtensions: true
@@ -60,13 +52,6 @@ const defaultMockConfig: ServiceConfig = {
       }
     }
   },
-  ROLES_LIST: [
-    'USER_ROLE_abc7a2fd-4acf-4547-a194-1673f63eb37c',
-    'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'
-  ],
-  AUTO_GRANT_PORTAL_ADMIN_ROLES: [
-    'manager'
-  ],
   CORS_WHITELIST: [],
   ALLOW_CREDENTIALS: false
 }

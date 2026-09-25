@@ -39,23 +39,19 @@ const mockLoggerPush = jest.spyOn(Logger, 'push')
 const mockLoggerError = jest.spyOn(Logger, 'error')
 
 describe('users handler', () => {
-  let mockFindOne: jest.Mock = jest.fn()
+  let mockGetIdentity: jest.Mock = jest.fn()
   beforeEach((): void => {
     mockLoggerPush.mockReturnValue(null)
     mockLoggerError.mockReturnValue(null)
   })
 
   describe('GET /users/{ID}', () => {
-    const mockAuth: jest.Mock = jest.fn()
     const toolkit = {
       getLogger: jest.fn(() => logger),
       getReadRelationshipApi: jest.fn(),
       getWriteRelationshipApi: jest.fn(),
-      getKeycloakAdmin: jest.fn().mockImplementation(() => ({
-        auth: mockAuth,
-        users: {
-          findOne: mockFindOne
-        }
+      getIdentityApi: jest.fn().mockImplementation(() => ({
+        getIdentity: mockGetIdentity
       })),
       response: jest.fn(() => ({
         code: jest.fn((code: number) => ({
@@ -64,24 +60,16 @@ describe('users handler', () => {
       }))
     }
 
-    const mockKeycloakUserResponse = {
-      firstName: 'user',
-      lastName: 'name',
-      id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-      username: 'user',
-      email: 'user@email.com',
-      createdTimestamp: 1706645601591,
-      enabled: true,
-      totp: false,
-      emailVerified: false,
-      disableableCredentialTypes: [],
-      requiredActions: [],
-      notBefore: 0,
-      access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
+    const mockIdentityResponse = {
+      data: {
+        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+        schema_id: 'default',
+        traits: { email: 'user@email.com', roles: [] }
+      }
     }
 
     it('handles a successful request', async () => {
-      mockFindOne = jest.fn().mockImplementation(() => { return mockKeycloakUserResponse })
+      mockGetIdentity = jest.fn().mockImplementation(() => { return mockIdentityResponse })
 
       const request = {
         method: 'GET',
@@ -101,18 +89,18 @@ describe('users handler', () => {
       expect(toolkit.response).toHaveBeenCalledWith({
         user: {
           id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-          name: { givenName: 'user', familyName: 'name' },
-          username: 'user',
+          name: { givenName: undefined, familyName: undefined },
+          username: 'user@email.com',
           emails: ['user@email.com']
         }
       })
-      expect(mockFindOne).toHaveBeenCalledWith(
+      expect(mockGetIdentity).toHaveBeenCalledWith(
         { id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca' }
       )
     })
 
     it('handles errors', async () => {
-      mockFindOne = jest.fn().mockImplementation(() => { throw new Error('error') })
+      mockGetIdentity = jest.fn().mockImplementation(() => { throw new Error('error') })
       const request = {
         method: 'GET',
         url: '/users/9e666741-53f2-4fc0-8c50-d4fce6f59eca',

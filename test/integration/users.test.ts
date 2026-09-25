@@ -30,23 +30,45 @@
 
 import axios from 'axios'
 
-describe('GET /users', (): void => {
-  // keycloak is preloaded with an admin account
-  const expectedResp = {
-    users: [{
-      emails: expect.any(Array),
-      id: expect.any(String),
-      name: {},
-      username: 'admin'
-    }]
-  }
+const KRATOS_ADMIN_URL = 'http://127.0.0.1:4434'
+const TEST_EMAIL = 'integration-user@example.com'
 
-  it('returns participant id list queried from keycloak', async (): Promise<void> => {
+// Seeds a Kratos identity for the user endpoints to surface
+const createTestIdentity = async (): Promise<string> => {
+  const { data } = await axios.post(`${KRATOS_ADMIN_URL}/admin/identities`, {
+    schema_id: 'default',
+    traits: { email: TEST_EMAIL, roles: [] }
+  })
+  return data.id
+}
+
+const deleteTestIdentity = async (id: string): Promise<void> => {
+  await axios.delete(`${KRATOS_ADMIN_URL}/admin/identities/${id}`)
+}
+
+describe('GET /users', (): void => {
+  let identityId: string
+
+  beforeAll(async (): Promise<void> => {
+    identityId = await createTestIdentity()
+  })
+
+  afterAll(async (): Promise<void> => {
+    await deleteTestIdentity(identityId)
+  })
+
+  it('returns the identities known to kratos', async (): Promise<void> => {
     const scenariosURI = 'http://127.0.0.1:3008/users'
     const response = await axios.get(scenariosURI)
 
     expect(response.status).toBe(200)
-    expect(response.data).toEqual(expectedResp)
+    expect(response.data).toHaveProperty('users')
+    expect(response.data.users).toContainEqual({
+      id: identityId,
+      name: {},
+      username: TEST_EMAIL,
+      emails: [TEST_EMAIL]
+    })
   })
 })
 
@@ -157,40 +179,34 @@ describe('GET/PATCH /users/{ID}/roles', (): void => {
 })
 
 describe('GET /users/{ID}', (): void => {
-  // keycloak is preloaded with an admin account
-  const expectedResp = {
-    users: [{
-      emails: expect.any(Array),
-      id: expect.any(String),
-      name: {},
-      username: 'admin'
-    }]
-  }
+  let identityId: string
 
-  const expectedUserResp = {
-    user: {
-      id: expect.any(String),
-      name: {},
-      username: 'admin',
-      emails: expect.any(Array)
-    }
-  }
+  beforeAll(async (): Promise<void> => {
+    identityId = await createTestIdentity()
+  })
 
-  it('returns participant id list queried from keycloak', async (): Promise<void> => {
-    const scenariosURI = 'http://127.0.0.1:3008/users'
-    const response = await axios.get(scenariosURI)
+  afterAll(async (): Promise<void> => {
+    await deleteTestIdentity(identityId)
+  })
 
-    expect(response.status).toBe(200)
-    expect(response.data).toEqual(expectedResp)
-
-    // id is non-deterministic in the integration keycloak service
-    // so we are just retrieving all users and taking a test id to use
-    const id = response.data.users[0].id
-
-    const scenariosIdURI = `http://127.0.0.1:3008/users/${id}`
+  it('returns the identity by id', async (): Promise<void> => {
+    const scenariosIdURI = `http://127.0.0.1:3008/users/${identityId}`
     const userResponse = await axios.get(scenariosIdURI)
 
     expect(userResponse.status).toBe(200)
-    expect(userResponse.data).toEqual(expectedUserResp)
+    expect(userResponse.data).toEqual({
+      user: {
+        id: identityId,
+        name: {},
+        username: TEST_EMAIL,
+        emails: [TEST_EMAIL]
+      }
+    })
+  })
+
+  it('returns 404 for an unknown identity', async (): Promise<void> => {
+    const unknownURI = 'http://127.0.0.1:3008/users/6e3c0aeb-0000-0000-0000-000000000000'
+    const response = await axios.get(unknownURI, { validateStatus: () => true })
+    expect(response.status).toBe(404)
   })
 })

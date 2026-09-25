@@ -1,4 +1,4 @@
-openapi: 3.0.2
+openapi: 3.1.0
 info:
   title: Mojaloop Role Assignment Service
   version: '1.0'
@@ -14,6 +14,7 @@ paths:
   /health:
     get:
       operationId: HealthGet
+      security: []
       summary: Health check endpoint
       description: >-
         The HTTP request GET /health is used to return the current status of the
@@ -43,6 +44,7 @@ paths:
   /metrics:
     get:
       operationId: MetricsGet
+      security: []
       summary: Prometheus metrics endpoint
       description: The HTTP request GET /metrics is used to return metrics for the API.
       tags:
@@ -70,12 +72,22 @@ paths:
   /users:
     get:
       operationId: UsersGet
+      summary: Lists the operators known to the platform
+      # Operators are administered as one set
+      x-authz:
+        scopedBy: []
+      security:
+      - session: []
       description: >-
         The HTTP request GET /users is used to return a list of user.
-        Retrieves a user list from Keycloak.
+        Retrieves the identities known to Kratos.
       responses:
         '200':
-          $ref: '#/components/schemas/UsersGetResponse'
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -102,12 +114,21 @@ paths:
           type: string
     get:
       operationId: UsersIDGet
+      summary: Returns one operator
+      x-authz:
+        scopedBy: []
+      security:
+      - session: []
       description: >-
         The HTTP request GET /users is used to return a specific user.
-        Retrieves a user from Keycloak.
+        Retrieves an identity from Kratos.
       responses:
         '200':
-          $ref: '#/components/schemas/UsersIDGetResponse'
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersIDGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -125,15 +146,32 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /participants:
+  /resources:
     get:
-      operationId: ParticipantsGet
+      operationId: ResourcesGet
+      summary: Lists the resources a role can be assigned over
+      x-authz:
+        scopedBy: []
+      security:
+      - session: []
       description: >-
-        The HTTP request GET /participants is used to return a list of participant ids.
-        Retrieves a participant list from a @mojaloop/central-ledger service.
+        The resources that exist, optionally of one resource name, as the
+        services that own them reported. These are what an operator chooses
+        among when a role leaves a resource name open.
+      parameters:
+        - name: resourceName
+          in: query
+          required: false
+          description: One resource name, such as Participant or Report
+          schema:
+            type: string
       responses:
         '200':
-          $ref: '#/components/schemas/ParticipantsGetResponse'
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcesGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -154,11 +192,20 @@ paths:
   /roles:
     get:
       operationId: RolesGet
+      summary: Lists the roles that can be assigned
+      x-authz:
+        scopedBy: []
+      security:
+      - session: []
       description: >-
         The HTTP request GET /roles is used to return a list of role ids.
       responses:
         '200':
-          $ref: '#/components/schemas/RolesGetResponse'
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolesGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -176,7 +223,7 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /users/{ID}/participants:
+  /users/{ID}/assignments:
     parameters:
       - name: ID
         in: path
@@ -184,14 +231,22 @@ paths:
         schema:
           type: string
     get:
-      operationId: UsersIDParticipantsGet
+      operationId: UsersIDAssignmentsGet
+      summary: Returns what an operator holds
+      x-authz:
+        scopedBy: []
+      security:
+      - session: []
       description: >-
-        The HTTP request GET /users/{ID}/participants is used to return a list
-        of participants assigned to a user.
-        Retrieves a user's assigned participant list from an ory/keto service.
+        One entry per role the user holds, carrying the arguments it was given.
+        A role that takes arguments appears once per set of them.
       responses:
         '200':
-          $ref: '#/components/schemas/UsersIDParticipantsGetResponse'
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersIDAssignmentsGetResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -209,81 +264,23 @@ paths:
         '503':
           $ref: '#/components/responses/503'
     patch:
-      operationId: UsersIDParticipantsPatch
+      operationId: UsersIDAssignmentsPatch
+      summary: Changes what an operator holds
+      x-authz:
+        scopedBy: []
+      security:
+      - session: []
       description: >-
-        The HTTP request PATCH /users/{ID}/participants is used to assign/remove
-        a participant to/from a user.
-        These participant operations are sent to an ory/keto service.
+        Adds or removes one role at a time, each with the arguments that say
+        what it is over. The IAM refuses an argument naming a resource that
+        does not exist, and those refusals come back rather than being applied
+        in part and reported as success.
       requestBody:
         required: true
         content:
            application/json:
               schema:
-                $ref: '#/components/schemas/UsersIDParticipantsPatchRequest'
-      responses:
-        '200':
-          $ref: '#/components/responses/200'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '406':
-          $ref: '#/components/responses/406'
-        '501':
-          $ref: '#/components/responses/501'
-        '503':
-          $ref: '#/components/responses/503'
-
-  /users/{ID}/roles:
-    parameters:
-      - name: ID
-        in: path
-        required: true
-        schema:
-          type: string
-    get:
-      operationId: UsersIDRolesGet
-      description: >-
-        The HTTP request GET /users/{ID}/roles is used to return a list of
-        roles assigned to a user.
-        Retrieves a user's assigned role list from an ory/keto service.
-      responses:
-        '200':
-          $ref: '#/components/schemas/UsersIDRolesGetResponse'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '406':
-          $ref: '#/components/responses/406'
-        '501':
-          $ref: '#/components/responses/501'
-        '503':
-          $ref: '#/components/responses/503'
-    patch:
-      operationId: UsersIDRolesPatch
-      description: >-
-        The HTTP request PATCH /users/{ID}/roles is used to assign/remove
-        a role to/from a user.
-        These role operations are sent to an ory/keto service.
-      requestBody:
-        required: true
-        content:
-           application/json:
-              schema:
-                $ref: '#/components/schemas/UsersIDRolesPatchRequest'
+                $ref: '#/components/schemas/UsersIDAssignmentsPatchRequest'
       responses:
         '200':
           $ref: '#/components/responses/200'
@@ -305,6 +302,12 @@ paths:
           $ref: '#/components/responses/503'
 
 components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: ory_kratos_session
+      description: A human's browser session
   responses:
     '200':
       description: OK
@@ -441,90 +444,102 @@ components:
       properties:
         user:
           $ref: '#/components/schemas/User'
-    ParticipantsGetResponse:
-      title: ParticipantsGetResponse
+    Resource:
+      title: Resource
       type: object
-      description: List of assignable participant ids.
+      description: One resource an operator can grant a role over.
       required:
-      - participants
+      - resourceName
+      - id
       properties:
-        participants:
+        resourceName:
+          type: string
+          description: The deployment's resource name the resource is filed under
+        id:
+          type: string
+    ResourcesGetResponse:
+      title: ResourcesGetResponse
+      type: object
+      description: The resources that exist.
+      required:
+      - resources
+      properties:
+        resources:
           type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+    Role:
+      title: Role
+      type: object
+      description: A role, and the resource names an assignment must name.
+      required:
+      - name
+      - open
+      properties:
+        name:
+          type: string
+        open:
+          type: array
+          description: >-
+            The resource names the role's grants leave open, each the list an
+            operator picks a resource from. Empty for a role held as it is.
           items:
             type: string
     RolesGetResponse:
       title: RolesGetResponse
       type: object
-      description: List of assignable role ids.
+      description: The roles a deployment defined.
       required:
       - roles
       properties:
         roles:
           type: array
           items:
+            $ref: '#/components/schemas/Role'
+    Assignment:
+      title: Assignment
+      type: object
+      description: One role a user holds, and what it is over.
+      required:
+      - role
+      properties:
+        role:
+          type: string
+        resources:
+          type: object
+          description: One resource id per resource name the role leaves open.
+          additionalProperties:
             type: string
-    UsersIDParticipantsGetResponse:
-      title: UsersIDParticipantsGetResponse
+    UsersIDAssignmentsGetResponse:
+      title: UsersIDAssignmentsGetResponse
       type: object
-      description: List of participants ids that a user is a member of.
+      description: What a user holds.
       required:
-      - participants
+      - assignments
       properties:
-        participants:
+        assignments:
           type: array
           items:
-            type: string
-    UsersIDRolesGetResponse:
-      title: UsersIDRolesGetResponse
-      type: object
-      description: List of roles ids that a user is a member of.
-      required:
-      - roles
-      properties:
-        roles:
-          type: array
-          items:
-            type: string
-    UsersIDParticipantsPatchRequest:
+            $ref: '#/components/schemas/Assignment'
+    UsersIDAssignmentsPatchRequest:
       type: object
       required:
-      - participantOperations
+      - assignmentOperations
       properties:
-        participantOperations:
+        assignmentOperations:
           type: array
           items:
-            type: object
-            required:
-            - participantId
-            - action
-            properties:
-              participantId:
-                type: string
-              action:
-                type: string
-                enum:
-                  - insert
-                  - delete
-    UsersIDRolesPatchRequest:
-      type: object
-      required:
-      - roleOperations
-      properties:
-        roleOperations:
-          type: array
-          items:
-            type: object
-            required:
-            - roleId
-            - action
-            properties:
-              roleId:
-                type: string
-              action:
-                type: string
-                enum:
-                  - insert
-                  - delete
+            allOf:
+            - $ref: '#/components/schemas/Assignment'
+            - type: object
+              required:
+              - action
+              properties:
+                action:
+                  type: string
+                  enum:
+                    - insert
+                    - delete
     ErrorCode:
       title: ErrorCode
       type: string

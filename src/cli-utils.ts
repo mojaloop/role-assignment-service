@@ -31,7 +31,6 @@
 
 import Config from './shared/config'
 import ServiceServer from './server'
-import { AutoGrant } from './application'
 import { Command } from 'commander'
 import logger from '@mojaloop/central-services-logger'
 
@@ -64,15 +63,9 @@ export function startProgram (cliArgs: string[]) {
     .description('start the api server only')
     .action(() => startServices(startApiServer()))
 
-  // Start the auto grant process only
-  program.command('autogrant')
-    .description('start the autogrant process only')
-    .action(() => startServices(AutoGrant.start(Config, logger)))
-
-
   program.command('all')
     .description('start all services')
-    .action(() => startServices(startApiServer(), AutoGrant.start(Config, logger)))
+    .action(() => startServices(startApiServer()))
 
   program.parse(cliArgs)
 }

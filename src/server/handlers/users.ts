@@ -30,19 +30,15 @@
 
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
+import { listAllIdentities, toUserRecord } from '~/shared/kratosIdentity'
+import { logThrown } from '~/shared/logger'
 
 const get = async (_context: unknown, _request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
-    const users = await h.getKeycloakAdmin().users.find()
-    const userIdList = users.map((obj) => ({
-      id: obj.id,
-      name: { givenName: obj.firstName, familyName: obj.lastName },
-      username: obj.username,
-      emails: obj.email ? [obj.email] : []
-    }))
-    return h.response({ users: userIdList }).code(200)
+    const identities = await listAllIdentities(h.getIdentityApi())
+    return h.response({ users: identities.map(toUserRecord) }).code(200)
   } catch (e) {
-    h.getLogger().error(e)
+    logThrown(h.getLogger(), e)
     // TODO: add error information
     return h.response().code(500)
   }

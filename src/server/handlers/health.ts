@@ -49,9 +49,8 @@ const get = async (_context: unknown, _request: Request, h: StateResponseToolkit
   const response = await healthCheck.getHealth()
 
   response.LoggerPresent = typeof h.getLogger() !== 'undefined'
-  response.KetoReadApiPresent = typeof h.getReadRelationshipApi() !== 'undefined'
-  response.KetoWriteApPresent = typeof h.getReadRelationshipApi() !== 'undefined'
-  response.KeycloakAdminPresent = typeof h.getKeycloakAdmin() !== 'undefined'
+  response.IamPresent = typeof h.getIam() !== 'undefined'
+  response.KratosIdentityApiPresent = typeof h.getIdentityApi() !== 'undefined'
   return h.response(response).code(200)
 }
 

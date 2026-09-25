@@ -10,19 +10,8 @@
     "expiresIn": 180000,
     "generateTimeout": 30000
   },
-  "CENTRAL_SERVICE_ADMIN_URL": "http://central-ledger:3001",
-  "ROLE_OPERATOR_SERVICE_URL": "http://moja-role-operator:3001",
-  "ORY_KETO_READ_SERVICE_URL": "http://keto:4466",
-  "ORY_KETO_WRITE_SERVICE_URL": "http://keto:4467",
-  "KEYCLOAK_URL": "http://keycloak:8080",
-  "KEYCLOAK_USER": "admin",
-  "KEYCLOAK_PASSWORD": "admin",
-  "KEYCLOAK_REALM": "master",
-  "KEYCLOAK_CLIENT_ID": "admin-cli",
-  "KEYCLOAK_REFRESH_INTERVAL": 58000,
-  "AUTO_GRANT_PORTAL_ADMIN_ROLES": [
-    "manager"
-  ],
+  "IAM_SERVICE_URL": "http://iam-provisioning:3003",
+  "ORY_KRATOS_ADMIN_SERVICE_URL": "http://kratos:4434",
   "ERROR_HANDLING": {
     "includeCauseExtension": true,
     "truncateExtensions": true
@@ -42,10 +31,6 @@
       }
     }
   },
-  "ROLES_LIST": [
-    "USER_ROLE_abc7a2fd-4acf-4547-a194-1673f63eb37c",
-    "ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6"
-  ],
   "CORS_WHITELIST": [
     "http://localhost:3000",
     "http://localhost:3010",

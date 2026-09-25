@@ -1,19 +1,12 @@
 import path from 'path'
 import { loadFeature, defineFeature } from 'jest-cucumber'
 import { Server, ServerInjectResponse } from '@hapi/hapi'
+import axios from 'axios'
 import Config from '~/shared/config'
 
 import RoleAssignmentService from '~/server'
 
-jest.mock('@keycloak/keycloak-admin-client', () => {
-  return jest.fn().mockImplementation(() => ({
-    auth: jest.fn(),
-    users: {
-      find: jest.fn(),
-      findOne: jest.fn()
-    }
-  }))
-})
+jest.mock('axios')
 
 const featurePath = path.join(__dirname, '../features/roles.scenario.feature')
 const feature = loadFeature(featurePath)
@@ -37,6 +30,14 @@ defineFeature(feature, (test): void => {
     })
 
     when('I make a GET Roles request', async (): Promise<ServerInjectResponse> => {
+      axios.request = jest.fn().mockResolvedValueOnce({
+        data: {
+          relation_tuples: [
+            { namespace: 'Role', object: 'hub-admin', relation: 'members', subject_id: 'u1' }
+          ],
+          next_page_token: ''
+        }
+      })
       const request = {
         method: 'GET',
         url: '/roles'
@@ -47,6 +48,7 @@ defineFeature(feature, (test): void => {
 
     then('The status should be \'OK\'', (): void => {
       expect(response.statusCode).toBe(200)
+      expect(JSON.parse(response.payload)).toEqual({ roles: ['hub-admin'] })
     })
   })
 })

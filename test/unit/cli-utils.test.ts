@@ -27,14 +27,11 @@
  --------------
  ******/
 
-import Config from '~/shared/config'
 import server from '~/server'
-import { AutoGrant } from '~/application/autogrant'
 import { startProgram } from '~/cli-utils'
 
 jest.mock('~/server')
 jest.mock('~/shared/logger')
-jest.mock('~/application/autogrant')
 
 describe('cli', (): void => {
   beforeEach((): void => {
@@ -45,7 +42,6 @@ describe('cli', (): void => {
     startProgram(process.argv)
 
     expect(server.run).toHaveBeenCalled()
-    expect(AutoGrant.start).toHaveBeenCalled()
   })
 
   it('start the api only', async (): Promise<void> => {
@@ -53,21 +49,5 @@ describe('cli', (): void => {
     startProgram(process.argv)
 
     expect(server.run).toHaveBeenCalled()
-    expect(AutoGrant.start).not.toHaveBeenCalled()
-  })
-
-  it('start the autogrant only', async (): Promise<void> => {
-    process.argv = ['jest', 'cli.ts', 'autogrant']
-    startProgram(process.argv)
-
-    expect(AutoGrant.start).toHaveBeenCalled()
-    expect(server.run).not.toHaveBeenCalled()
-  })
-  it('start the autogrant with an exception', async (): Promise<void> => {
-    AutoGrant.start = jest.fn().mockRejectedValue(new Error('some error'))
-    process.argv = ['jest', 'cli.ts', 'autogrant']
-    startProgram(process.argv)
-    expect(AutoGrant.start).toHaveBeenCalled()
-    expect(server.run).not.toHaveBeenCalled()
   })
 })

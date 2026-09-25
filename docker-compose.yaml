@@ -1,8 +1,9 @@
-version: "3.7"
-
 networks:
   mojaloop-net:
     name: mojaloop-net
+
+volumes:
+  authz-bundle:
 
 services:
   role-assignment-service:
@@ -17,12 +18,14 @@ services:
       replicas: 1
     ports:
       - "3008:3008"
+    environment:
+      - ROLE_ASSIGNMENT_SERVICE_IAM_SERVICE_URL=http://iam-provisioning:3003
     networks:
       - mojaloop-net
     depends_on:
-      moja-role-operator:
+      iam-provisioning:
         condition: service_healthy
-      keycloak:
+      kratos:
         condition: service_healthy
     healthcheck:
       test: wget -q http://172.17.0.1:3008/health -O /dev/null || exit 1
@@ -30,28 +33,95 @@ services:
       retries: 30
       interval: 15s
 
+  # This service's own document, turned into the gateway rules, the Keto model
+  # and the catalog the IAM validates roles against.
+  prepare-authz:
+    image: mojaloop/ml-iam-services:local
+    # A fresh named volume belongs to root, and this writes into it once
+    user: root
+    command:
+      - authzgen
+      - --spec=/spec/api.yaml
+      - --out=/bundle
+      - --host=role-assignment-service
+    volumes:
+      - ./src/interface/api.yaml:/spec/api.yaml:ro
+      - authz-bundle:/bundle
+    restart: "no"
+
+  # Roles, resources and assignments live here; nothing else writes to Keto.
+  iam-provisioning:
+    image: mojaloop/ml-iam-services:local
+    command:
+      - provisioning
+      - --roles=/default-roles.json
+      - --catalog=/bundle/catalog.json
+    environment:
+      - PORT=3003
+      - KETO_WRITE_URL=http://keto:4467
+      - KETO_READ_URL=http://keto:4466
+      - KRATOS_ADMIN_URL=http://kratos:4434
+      - IAM_ADMIN_EMAIL=${IAM_ADMIN_EMAIL:-admin@iam.local}
+      - IAM_ADMIN_PASSWORD=${IAM_ADMIN_PASSWORD:-admin1234}
+      - IAM_HUB_ADMIN_ROLE=${IAM_HUB_ADMIN_ROLE:-iam-admin}
+    volumes:
+      - ./docker/default-roles.json:/default-roles.json:ro
+      - authz-bundle:/bundle:ro
+    networks:
+      - mojaloop-net
+    depends_on:
+      keto:
+        condition: service_healthy
+      kratos:
+        condition: service_healthy
+      prepare-authz:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:3003/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
   keto:
     container_name: keto
-    image: oryd/keto:v0.11.0
+    image: oryd/keto:v26.2.0
     ports:
       - '4466:4466' # Read port
       - '4467:4467' # Write port
     volumes:
-      - ./docker/keto.yml:/opt/keto/keto.yml
+      - ./docker/keto.yml:/opt/keto/keto.yml:ro
+      - authz-bundle:/etc/keto-namespaces:ro
     command: serve --config /opt/keto/keto.yml
     networks:
       - mojaloop-net
+    depends_on:
+      prepare-authz:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:4466/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
 
-  #keto-init:
-  #  container_name: keto-init
-  #  image: oryd/keto:v0.6.0-alpha.1-sqlite
-  #  environment:
-  #    - KETO_WRITE_REMOTE=keto:4467
-  #  volumes:
-  #    - ./docker/relation-tuples:/opt/relation-tuples
-  #  command: relation-tuple create /opt/relation-tuples/init_tuples.json
-  #  networks:
-  #    - mojaloop-net
+  kratos:
+    container_name: kratos
+    image: oryd/kratos:v26.2.0
+    ports:
+      - '4433:4433' # Public port
+      - '4434:4434' # Admin port
+    volumes:
+      - ./docker/kratos:/etc/config/kratos:ro
+    command: serve --dev --config /etc/config/kratos/kratos.yml
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:4433/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
 
   central-ledger:
     image: mojaloop/central-ledger:v17.6.0
@@ -120,69 +190,3 @@ services:
       start_period: 40s
       interval: 30s
 
-  moja-role-operator:
-    image: mojaloop/security-role-perm-operator-svc:v2.1.9
-    container_name: moja-role-operator
-    ports:
-      - "23001:3001"
-    environment:
-      - LOG_LEVEL=info
-      - ROLE_PERM_OPERATOR_ORY_KETO_READ_SERVICE_URL=http://keto:4466
-      - ROLE_PERM_OPERATOR_ORY_KETO_WRITE_SERVICE_URL=http://keto:4467
-    networks:
-      - mojaloop-net
-    depends_on:
-      keto:
-        condition: service_started
-    user: root
-    healthcheck:
-      test: curl -f -s http://localhost:3001/health > /dev/null || exit 1
-      timeout: 20s
-      retries: 30
-      interval: 30s
-      start_period: 30s
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:21.1.0
-    user: root
-    container_name: keycloak
-    command: ['start-dev --import-realm']
-    ports:
-      - "8080:8080"
-    depends_on:
-      mysql-keycloak:
-        condition: service_healthy
-    volumes:
-       - ./docker/realm-export.json:/opt/keycloak/data/import/realm.json
-    environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_DB=mysql
-      - KC_DB_URL_HOST=mysql-keycloak
-      - KC_DB_URL_DATABASE=keycloak
-      - KC_DB_USERNAME=keycloak
-      - KC_DB_PASSWORD=password
-      - KC_HEALTH_ENABLED=true
-    networks:
-      - mojaloop-net
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3"]
-      timeout: 20s
-      retries: 10
-      start_period: 40s
-      interval: 30s
-
-  mysql-keycloak:
-    image: mysql:8.3.0
-    container_name: mysql-keycloak
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_DATABASE=keycloak
-      - MYSQL_USER=keycloak
-      - MYSQL_PASSWORD=password
-      - MYSQL_ROOT_PASSWORD=root_password
-    healthcheck:
-      test: "mysqladmin ping -u root -p$${MYSQL_ROOT_PASSWORD}"
-    networks:
-      - mojaloop-net

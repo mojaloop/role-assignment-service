@@ -27,11 +27,13 @@
  --------------
  ******/
 
+import Path from 'path'
 import Inert from '@hapi/inert'
 import Vision from '@hapi/vision'
 import Blip from 'blipp'
 import { Server, ServerRoute } from '@hapi/hapi'
 
+import { createGuard } from '@mojaloop/authz'
 import ErrorHandling from '@mojaloop/central-services-error-handling'
 import { Util } from '@mojaloop/central-services-shared'
 import Good from './good'
@@ -54,6 +56,19 @@ async function register (server: Server): Promise<Server> {
   ]
 
   await server.register(plugins)
+
+  // The platform reads this service's document here, answered by the package
+  // that serves it the same way on every service
+  const authz = await createGuard(Path.resolve(__dirname, '../../interface/api.yaml'))
+  const expose = authz.expose()
+  server.route({
+    method: 'GET',
+    path: authz.path,
+    handler: (req, h) => {
+      expose(req.raw.req, req.raw.res)
+      return h.abandon
+    }
+  })
 
   // use as a catch-all handler
   server.route({

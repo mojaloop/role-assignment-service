@@ -29,10 +29,6 @@
  --------------
  ******/
 
-let mockFind: jest.Mock = jest.fn()
-let mockFindOne: jest.Mock = jest.fn()
-const mockAuth: jest.Mock = jest.fn()
-
 import index from '~/index'
 import Config from '~/shared/config'
 import { Server } from '@hapi/hapi'
@@ -42,16 +38,6 @@ import Logger from '@mojaloop/central-services-logger'
 jest.mock('axios')
 const mockLoggerPush = jest.spyOn(Logger, 'push')
 const mockLoggerError = jest.spyOn(Logger, 'error')
-
-jest.mock('@keycloak/keycloak-admin-client', () => {
-  return jest.fn().mockImplementation(() => ({
-    auth: mockAuth,
-    users: {
-      find: mockFind,
-      findOne: mockFindOne
-    }
-  }))
-})
 
 describe('index', (): void => {
   it('must have proper layout', (): void => {
@@ -112,221 +98,116 @@ describe('index', (): void => {
 
     describe('/roles', (): void => {
       it('GET /roles', async (): Promise<void> => {
-        const request = {
-          method: 'GET',
-          url: '/roles',
-          headers: {}
-        }
-
-        const response = await server.inject(request)
-
-        expect(response.statusCode).toBe(200)
-        expect(response.result).toEqual({ roles: Config.ROLES_LIST })
-      })
-    })
-
-    describe('/participants', (): void => {
-      const mockCentralLedgerParticipantsResponse = {
-        data: [
-          {
-            name: 'dfsp',
-            id: 'http://central-ledger/participants/pineapplepay',
-            created: '"2021-09-16T13:58:38.000Z"',
-            isActive: 1,
-            links: [],
-            accounts: []
-          }
-        ]
-      }
-      it('GET /participants', async (): Promise<void> => {
-        axios.get = jest.fn().mockResolvedValueOnce(mockCentralLedgerParticipantsResponse)
-
-        const request = {
-          method: 'GET',
-          url: '/participants',
-          headers: {}
-        }
-
-        const response = await server.inject(request)
-        expect(response.statusCode).toBe(200)
-        expect(response.result).toEqual({ participants: ['dfsp'] })
-        expect(axios.get).toHaveBeenCalledWith('http://central-ledger:3001/participants')
-      })
-    })
-
-    describe('/users/{ID}/participants', (): void => {
-      const mockKetoUserParticipantsResponse = {
-        data: {
-          relation_tuples: [
+        global.fetch = jest.fn().mockResolvedValueOnce({
+          ok: true,
+          json: async () => [
+            { name: 'hub-admin', open: [], grants: [] },
             {
-              namespace: 'participant',
-              object: 'dfsp',
-              relation: 'member',
-              subject_id: 'myTestUserID'
+              name: 'dfsp-operator',
+              open: ['Participant'],
+              grants: [{ permission: 'mcm.getDFSPca' }]
             }
-          ],
-          next_page_token: ''
-        }
-      }
+          ]
+        }) as unknown as typeof fetch
 
-      it('GET /users/{ID}/participants', async (): Promise<void> => {
-        axios.request = jest.fn().mockResolvedValueOnce(mockKetoUserParticipantsResponse)
+        const response = await server.inject({ method: 'GET', url: '/roles', headers: {} })
 
-        const request = {
-          method: 'GET',
-          url: '/users/myTestUserID/participants',
-          headers: {}
-        }
-
-        const response = await server.inject(request)
         expect(response.statusCode).toBe(200)
-        expect(response.result).toEqual({ participants: ['dfsp'] })
-        expect(axios.request).toHaveBeenCalledWith({
-          headers: expect.anything(),
-          method: 'GET',
-          url: 'http://keto:4466/relation-tuples?namespace=participant&relation=member&subject_id=myTestUserID'
+        expect(response.result).toEqual({
+          roles: [
+            { name: 'hub-admin', open: [] },
+            { name: 'dfsp-operator', open: ['Participant'] }
+          ]
         })
-      })
-
-      it('PATCH /users/{ID}/participants', async (): Promise<void> => {
-        axios.request = jest.fn()
-
-        const request = {
-          method: 'PATCH',
-          url: '/users/myTestUserID/participants',
-          payload: {
-            participantOperations: [
-              {
-                action: 'insert',
-                participantId: 'dfspa'
-              },
-              {
-                action: 'delete',
-                participantId: 'dfspb'
-              }
-            ]
-          }
-        }
-
-        const response = await server.inject(request)
-        expect(response.statusCode).toBe(200)
-        expect(axios.request).toHaveBeenCalledWith({
-          headers: expect.anything(),
-          method: 'PATCH',
-          url: 'http://keto:4467/admin/relation-tuples',
-          data: JSON.stringify([
-            {
-              action: 'insert',
-              relation_tuple: {
-                namespace: 'participant',
-                object: 'dfspa',
-                relation: 'member',
-                subject_id: 'myTestUserID'
-              }
-            },
-            {
-              action: 'delete',
-              relation_tuple: {
-                namespace: 'participant',
-                object: 'dfspb',
-                relation: 'member',
-                subject_id: 'myTestUserID'
-              }
-            }
-          ])
-        })
-      })
-    })
-
-    describe('/users/{ID}/roles', (): void => {
-      const mockKetoUserRolesResponse = {
-        data: {
-          relation_tuples: [
-            {
-              namespace: 'role',
-              object: 'ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6',
-              relation: 'member',
-              subject_id: 'myTestUserID'
-            }
-          ],
-          next_page_token: ''
-        }
-      }
-      it('GET /users/{ID}/roles', async (): Promise<void> => {
-        axios.request = jest.fn().mockResolvedValueOnce(mockKetoUserRolesResponse)
-
-        const request = {
-          method: 'GET',
-          url: '/users/myTestUserID/roles',
-          headers: {}
-        }
-
-        const response = await server.inject(request)
-        expect(response.statusCode).toBe(200)
-        expect(response.result).toEqual({ roles: ['ADMIN_ROLE_6c1ec084-86d4-4915-ba81-6c59b87a65a6'] })
-        expect(axios.request).toHaveBeenCalledWith({
-          headers: expect.anything(),
-          method: 'GET',
-          url: 'http://keto:4466/relation-tuples?namespace=role&relation=member&subject_id=myTestUserID'
-        })
-      })
-
-      it('PATCH /users/{ID}/roles', async (): Promise<void> => {
-        axios.request = jest.fn()
-        axios.post = jest.fn()
-
-        const request = {
-          method: 'PATCH',
-          url: '/users/myTestUserID/roles',
-          payload: {
-            roleOperations: [
-              {
-                action: 'insert',
-                roleId: 'admin'
-              },
-              {
-                action: 'delete',
-                roleId: 'user'
-              }
-            ]
-          }
-        }
-
-        const response = await server.inject(request)
-        expect(response.statusCode).toBe(200)
-        expect(axios.post).toHaveBeenCalledWith(
-          'http://moja-role-operator:3001/assignment/user-role',
-          {
-            roles: ['admin'],
-            username: 'myTestUserID'
-          }
+        expect(global.fetch).toHaveBeenCalledWith(
+          'http://iam-provisioning:3003/roles',
+          expect.objectContaining({ method: 'GET' })
         )
       })
     })
 
+    describe('/resources', (): void => {
+      it('GET /resources', async (): Promise<void> => {
+        global.fetch = jest.fn().mockResolvedValueOnce({
+          ok: true,
+          json: async () => [{ resourceName: 'Participant', id: 'dfsp-a' }]
+        }) as unknown as typeof fetch
+
+        const response = await server.inject({ method: 'GET', url: '/resources?resourceName=Participant', headers: {} })
+
+        expect(response.statusCode).toBe(200)
+        expect(response.result).toEqual({ resources: [{ resourceName: 'Participant', id: 'dfsp-a' }] })
+        expect(global.fetch).toHaveBeenCalledWith(
+          'http://iam-provisioning:3003/resources?resourceName=Participant',
+          expect.objectContaining({ method: 'GET' })
+        )
+      })
+    })
+
+    describe('/users/{ID}/assignments', (): void => {
+      it('GET /users/{ID}/assignments', async (): Promise<void> => {
+        global.fetch = jest.fn().mockResolvedValueOnce({
+          ok: true,
+          json: async () => [{ role: 'dfsp-operator', resources: { Participant: 'dfsp-a' } }]
+        }) as unknown as typeof fetch
+
+        const response = await server.inject({
+          method: 'GET',
+          url: '/users/myTestUserID/assignments',
+          headers: {}
+        })
+
+        expect(response.statusCode).toBe(200)
+        expect(response.result).toEqual({
+          assignments: [{ role: 'dfsp-operator', resources: { Participant: 'dfsp-a' } }]
+        })
+      })
+
+      it('PATCH /users/{ID}/assignments', async (): Promise<void> => {
+        global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ instance: 'x' }) }) as unknown as typeof fetch
+
+        const response = await server.inject({
+          method: 'PATCH',
+          url: '/users/myTestUserID/assignments',
+          headers: {},
+          payload: {
+            assignmentOperations: [
+              { action: 'insert', role: 'dfsp-operator', resources: { Participant: 'dfsp-a' } },
+              { action: 'delete', role: 'hub-admin' }
+            ]
+          }
+        })
+
+        expect(response.statusCode).toBe(200)
+        expect(global.fetch).toHaveBeenCalledWith(
+          'http://iam-provisioning:3003/subjects/myTestUserID/assignments',
+          expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({ role: 'dfsp-operator', resources: { Participant: 'dfsp-a' } })
+          })
+        )
+        expect(global.fetch).toHaveBeenCalledWith(
+          'http://iam-provisioning:3003/subjects/myTestUserID/assignments',
+          expect.objectContaining({
+            method: 'DELETE',
+            body: JSON.stringify({ role: 'hub-admin', resources: {} })
+          })
+        )
+      })
+    })
+
+
     describe('/users', (): void => {
-      const mockKeycloakUsersResponse = [{
-        firstName: 'user',
-        lastName: 'name',
-        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        username: 'user',
-        email: 'user@email.com',
-        createdTimestamp: 1706645601591,
-        enabled: true,
-        totp: false,
-        emailVerified: false,
-        disableableCredentialTypes: [],
-        requiredActions: [],
-        notBefore: 0,
-        access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
-      }]
+      const mockKratosIdentitiesResponse = {
+        data: [{
+          id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+          schema_id: 'default',
+          traits: { email: 'user@email.com', roles: [] }
+        }],
+        headers: {}
+      }
       it('GET /user', async (): Promise<void> => {
-        mockFind = jest.fn().mockImplementation(() => { return mockKeycloakUsersResponse })
-        // Restart server to apply new mock
-        server.stop()
-        mockLoggerPush.mockReturnValue(null)
-        mockLoggerError.mockReturnValue(null)
-        server = await index.server.run(Config)
+        axios.request = jest.fn().mockResolvedValueOnce(mockKratosIdentitiesResponse)
 
         const request = {
           method: 'GET',
@@ -340,39 +221,29 @@ describe('index', (): void => {
           users: [
             {
               id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-              name: { givenName: 'user', familyName: 'name' },
-              username: 'user',
+              name: {},
+              username: 'user@email.com',
               emails: ['user@email.com']
             }]
         })
-        expect(mockFind).toHaveBeenCalled()
+        expect(axios.request).toHaveBeenCalledWith(expect.objectContaining({
+          method: 'GET',
+          url: expect.stringContaining('http://kratos:4434/admin/identities')
+        }))
       })
     })
 
     describe('/users/{ID}', (): void => {
-      const mockKeycloakUserResponse = {
-        firstName: 'user',
-        lastName: 'name',
-        id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-        username: 'user',
-        email: 'user@email.com',
-        createdTimestamp: 1706645601591,
-        enabled: true,
-        totp: false,
-        emailVerified: false,
-        disableableCredentialTypes: [],
-        requiredActions: [],
-        notBefore: 0,
-        access: { manageGroupMembership: true, view: true, mapRoles: true, impersonate: true, manage: true }
+      const mockKratosIdentityResponse = {
+        data: {
+          id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
+          schema_id: 'default',
+          traits: { email: 'user@email.com', roles: [] }
+        }
       }
 
       it('GET /user/{ID}', async (): Promise<void> => {
-        mockFindOne = jest.fn().mockImplementation(() => { return mockKeycloakUserResponse })
-        // Restart server to apply new mock
-        server.stop()
-        mockLoggerPush.mockReturnValue(null)
-        mockLoggerError.mockReturnValue(null)
-        server = await index.server.run(Config)
+        axios.request = jest.fn().mockResolvedValueOnce(mockKratosIdentityResponse)
 
         const request = {
           method: 'GET',
@@ -385,14 +256,15 @@ describe('index', (): void => {
         expect(response.result).toEqual({
           user: {
             id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca',
-            name: { givenName: 'user', familyName: 'name' },
-            username: 'user',
+            name: {},
+            username: 'user@email.com',
             emails: ['user@email.com']
           }
         })
-        expect(mockFindOne).toHaveBeenCalledWith({
-          id: '9e666741-53f2-4fc0-8c50-d4fce6f59eca'
-        })
+        expect(axios.request).toHaveBeenCalledWith(expect.objectContaining({
+          method: 'GET',
+          url: expect.stringContaining('http://kratos:4434/admin/identities/9e666741-53f2-4fc0-8c50-d4fce6f59eca')
+        }))
       })
     })
   })

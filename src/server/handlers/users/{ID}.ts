@@ -30,25 +30,20 @@
 
 import { StateResponseToolkit } from '~/server/plugins/state'
 import { Request, ResponseObject } from '@hapi/hapi'
+import { isAxiosError } from 'axios'
+import { toUserRecord } from '~/shared/kratosIdentity'
+import { logThrown } from '~/shared/logger'
 
 const get = async (_context: unknown, request: Request, h: StateResponseToolkit): Promise<ResponseObject> => {
   try {
     const userId: string = request.params.ID
-
-    const keycloakUser = await h.getKeycloakAdmin().users.findOne({ id: userId })
-    if (!keycloakUser) {
-      throw new Error('User not found')
-    }
-
-    const user = {
-      id: keycloakUser.id,
-      name: { givenName: keycloakUser.firstName, familyName: keycloakUser.lastName },
-      username: keycloakUser.username,
-      emails: keycloakUser.email ? [keycloakUser.email] : []
-    }
-    return h.response({ user }).code(200)
+    const { data } = await h.getIdentityApi().getIdentity({ id: userId })
+    return h.response({ user: toUserRecord(data) }).code(200)
   } catch (e) {
-    h.getLogger().error(e)
+    if (isAxiosError(e) && e.response?.status === 404) {
+      return h.response().code(404)
+    }
+    logThrown(h.getLogger(), e)
     // TODO: add error information
     return h.response().code(500)
   }

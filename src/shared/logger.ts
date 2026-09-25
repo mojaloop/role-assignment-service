@@ -33,9 +33,14 @@ import inspect from './inspect'
 import { Logger as SDKLogger } from '@mojaloop/sdk-standard-components'
 
 // default SDKLogger instance
-export const logger = new SDKLogger.Logger()
-export function createLogger (params?: SDKLogger.LoggerConstructorParams): SDKLogger.Logger {
-  return new SDKLogger.Logger(params)
+export const logger = SDKLogger.loggerFactory()
+export function createLogger (config?: SDKLogger.CreateLoggerFactoryConfig): SDKLogger.SdkLogger {
+  return SDKLogger.loggerFactory(config)
+}
+
+/** A catch binds unknown, and an Error carries a stack worth keeping. */
+export function logThrown (log: SDKLogger.SdkLogger, thrown: unknown): void {
+  log.error(thrown instanceof Error ? thrown : String(thrown))
 }
 
 export interface ResponseLogged extends ResponseObject {

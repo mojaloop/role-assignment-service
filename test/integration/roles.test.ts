@@ -29,19 +29,44 @@
  ******/
 
 import axios from 'axios'
-import Config from '~/shared/config'
 
 describe('GET /roles', (): void => {
-  // list of roles are hard coded in config/default.json
-  const expectedResp = {
-    roles: Config.ROLES_LIST
-  }
+  // roles are data in the permission graph, surfaced via their membership
+  // tuples; seed one through the service's own assignment API
+  beforeAll(async (): Promise<void> => {
+    await axios.patch(
+      'http://127.0.0.1:3008/users/rolesTestUserID/roles',
+      {
+        roleOperations: [
+          {
+            action: 'insert',
+            roleId: 'integration-test-role'
+          }
+        ]
+      }
+    )
+  })
+
+  afterAll(async (): Promise<void> => {
+    await axios.patch(
+      'http://127.0.0.1:3008/users/rolesTestUserID/roles',
+      {
+        roleOperations: [
+          {
+            action: 'delete',
+            roleId: 'integration-test-role'
+          }
+        ]
+      }
+    )
+  })
 
   it('returns list of role ids', async (): Promise<void> => {
     const scenariosURI = 'http://127.0.0.1:3008/roles'
     const response = await axios.get(scenariosURI)
 
     expect(response.status).toBe(200)
-    expect(response.data).toEqual(expectedResp)
+    expect(response.data).toHaveProperty('roles')
+    expect(response.data.roles).toContain('integration-test-role')
   })
 })
