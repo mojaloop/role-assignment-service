@@ -57,8 +57,6 @@ async function register (server: Server): Promise<Server> {
 
   await server.register(plugins)
 
-  // The platform reads this service's document here, answered by the package
-  // that serves it the same way on every service
   const authz = await createGuard(Path.resolve(__dirname, '../../interface/api.yaml'))
   const expose = authz.expose()
   server.route({
